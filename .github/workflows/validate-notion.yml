@@ -1,0 +1,21 @@
+name: Validate Notion KPI data
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 * * * *'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate and sync Notion (private runner only)
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: node scripts/sync-notion.mjs
+      - name: Report synchronization summary
+        run: node -e "const d=require('./data/kpi.json'); console.log(d.records.length+' KPI records; '+d.weeks.length+' weekly reports. JSON NOT uploaded to Pages or artifacts.')"
