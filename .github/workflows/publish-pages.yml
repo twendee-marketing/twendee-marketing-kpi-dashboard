@@ -47,8 +47,6 @@ jobs:
           cp index.html dist/index.html
           cp data/kpi.json dist/data/kpi.json
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
