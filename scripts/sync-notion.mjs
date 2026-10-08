@@ -32,7 +32,12 @@ function get(p){
 }
 function values(item){return Object.fromEntries(Object.entries(item.properties||{}).map(([key,v])=>[key,get(v)]));}
 const [metricPages,weekPages]=await Promise.all([query(METRICS),query(WEEKS)]);
-const records=metricPages.map(values),weeks=weekPages.map(x=>({id:x.id,...values(x)}));
+// Publish only the display fields; never expose notes, page URLs or relation IDs.
+const metricFields=['Metric ID','Reporting Period','Week Start','Section','Account','Metric','Actual','Target','Change %','Data Status','Sort Order'];
+const weekFields=['Reporting Period','Week Start','Status'];
+const pick=(props,keys)=>Object.fromEntries(keys.map(k=>[k,props[k]??null]));
+const records=metricPages.map(item=>pick(values(item),metricFields));
+const weeks=weekPages.map(item=>pick(values(item),weekFields));
 if(!records.length||!weeks.length)throw Error('Empty Notion response. Refusing to publish empty dashboard.');
 const periodSet=new Set(weeks.map(x=>x['Reporting Period']));
 const seen=new Set();
