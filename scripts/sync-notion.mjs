@@ -12,7 +12,11 @@ async function query(id){
       headers:{Authorization:'Bearer '+TOKEN,'Notion-Version':'2025-09-03','Content-Type':'application/json'},
       body:JSON.stringify({page_size:100,...(cursor?{start_cursor:cursor}:{})})
     });
-    if(!response.ok)throw Error('Notion query failed: HTTP '+response.status+' '+(await response.text()).slice(0,350));
+    if(!response.ok){
+      const detail=(await response.text()).slice(0,350);
+      if(response.status===404) throw Error('Notion database '+id+' is not accessible to the integration. In Notion, open the database → Connections → Add connections → Marketing Twendee. '+detail);
+      throw Error('Notion query failed: HTTP '+response.status+' '+detail);
+    }
     const json=await response.json();rows.push(...json.results);cursor=json.has_more?json.next_cursor:null;
   }while(cursor);
   return rows;
