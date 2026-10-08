@@ -1,0 +1,56 @@
+name: Publish KPI Dashboard to GitHub Pages
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'scripts/sync-notion.mjs'
+      - '.github/workflows/publish-pages.yml'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sync Notion KPI records
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: node scripts/sync-notion.mjs
+      - name: Verify public-safe export
+        run: |
+          node --input-type=module -e "
+          import fs from 'node:fs';
+          const d=JSON.parse(fs.readFileSync('data/kpi.json','utf8'));
+          if(!d.records?.length||!d.weeks?.length)process.exit(1);
+          const allowed=new Set(['Metric ID','Reporting Period','Week Start','Section','Account','Metric','Actual','Target','Change %','Data Status','Sort Order']);
+          if(d.records.some(x=>Object.keys(x).some(k=>!allowed.has(k))))process.exit(1);
+          console.log('Safe to publish:',d.records.length,'metrics;',d.weeks.length,'weeks');
+          "
+      - name: Create published site bundle
+        run: |
+          mkdir -p dist/data
+          cp index.html dist/index.html
+          cp data/kpi.json dist/data/kpi.json
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
