@@ -1,5 +1,10 @@
 name: Validate Notion KPI data
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/validate-notion.yml'
+      - 'scripts/sync-notion.mjs'
   workflow_dispatch:
   schedule:
     - cron: '15 * * * *'
