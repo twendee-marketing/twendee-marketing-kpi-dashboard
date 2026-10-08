@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="color-scheme" content="dark">
+<title>Twendee Marketing · KPI Dashboard</title>
+<style>
+:root{--bg:#0a0e15;--panel:#151b24;--panel2:#111822;--line:#27303d;--ink:#e8edf5;--muted:#98a5b8;--lime:#a7d878;--green:#80b959;--danger:#f28b7e;--blue:#8bafff;--highlight:#263a58;--radius:12px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.48 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.shell{max-width:1040px;margin:0 auto;padding:30px 26px 34px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-bottom:22px;border-bottom:2px solid #719c4d}
+.brand{display:flex;gap:15px;align-items:center}
+.logobox{flex-shrink:0;width:51px;height:51px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(140deg,#7fb957,#4d7e38);color:#fff;font-size:12px;font-weight:800;letter-spacing:.06em;text-align:center;line-height:1.15}
+h1{font-size:31px;line-height:1.15;letter-spacing:-.035em;margin:0 0 5px;font-weight:780}
+.subtitle{color:var(--muted);font-size:12px;margin:0}
+.brand-side{text-align:right;color:var(--muted);font-size:11px}
+.brand-side strong{color:var(--lime);display:block;font-size:12px}
+.toolbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:18px 0 7px}
+.period{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;margin-right:auto}
+.period select{min-width:220px;max-width:345px}
+select,.urlinput,.keyinput{background:#171f2b;border:1px solid #364357;color:var(--ink);border-radius:8px;padding:9px 10px;outline-offset:2px;min-height:37px}
+.urlinput{min-width:300px;flex:1}.keyinput{min-width:160px;flex:0.5}
+.btn{background:#1b2532;color:#e3e9f5;border:1px solid #384659;padding:9px 12px;min-height:37px;border-radius:8px;font-weight:620;white-space:nowrap}
+.btn:hover{background:#273347}.btn.primary{background:#293d25;border-color:#4f7840;color:#d7f7b8}
+.btn:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--lime)}
+#fileInput{display:none}
+.sync{display:none;gap:9px;align-items:center;flex-wrap:wrap;background:#111824;border:1px solid #2b3647;border-radius:10px;padding:12px;margin-top:10px}
+.sync.open{display:flex}
+.minihelp{font-size:11px;color:var(--muted);line-height:1.5;margin:4px 0 14px}
+.status{font-size:11px;color:#a7c58e;white-space:normal}
+.error{color:#ffc5b9}
+section{margin-top:28px}
+.secttitle{display:flex;gap:11px;align-items:baseline;margin:0 0 12px}
+h2{font-size:19px;font-weight:740;letter-spacing:-.018em;margin:0}.secttitle small{color:var(--muted);font-size:11px}
+.cards4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.cards2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.kpi{padding:14px 15px 15px;min-height:131px;position:relative}
+.kpi.good{background:linear-gradient(160deg,#202e21 0%,#171e1b 90%)}.kpi.bad{background:linear-gradient(160deg,#33201f,#211a1d)}
+.kpi .label{color:#b6c1cf;font-size:12px}.kpi .big{font-size:37px;line-height:1;font-weight:760;letter-spacing:-.045em;margin:14px 0 8px;font-variant-numeric:tabular-nums}
+.kpi.good .big{color:var(--lime)}.kpi.bad .big{color:var(--danger)}.kpi.pending .big{color:#c5d2ed}
+.sub{font-size:11px;color:#b6bfcd;line-height:1.4}
+.kpi .rail{height:5px;background:#2e3946;border-radius:3px;margin-top:12px;overflow:hidden}
+.kpi .fill{height:100%;width:0;background:var(--green);border-radius:3px}
+.person{padding:15px 18px 5px}.person-header{display:flex;gap:10px;align-items:center;margin-bottom:9px}
+.avatar{background:#d2d9e8;color:#283345;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:11px}
+.person h3,.site h3{font-size:13px;margin:0 0 2px;font-weight:750}.person-header small{font-size:11px;color:var(--muted)}
+.metricline{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;border-top:1px solid #283340;padding:11px 0}
+.metricline .mlabel{color:#acb8c9;font-size:12px}.metricline .mnum{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
+.delta{font-size:10px;font-weight:750;color:var(--lime);background:#273922;border-radius:5px;padding:2px 5px;min-width:54px;text-align:center}
+.delta.missing{background:transparent;color:transparent}
+.data-table{border-collapse:collapse;width:100%;font-size:12px}.data-table th,.data-table td{padding:12px 15px;border-bottom:1px solid #2a333e;text-align:left}
+.data-table th{color:#93a5bd;background:#171f2a;font-size:11px;font-weight:600}.data-table tr:last-child td{border-bottom:0}
+.data-table tr.featured{background:#1e3020}.data-table tr.featured td:first-child{box-shadow:inset 3px 0 #8abe55}
+.cell-main{font-weight:750;white-space:nowrap}.cell-value{font-weight:730;font-variant-numeric:tabular-nums}.cell-delta{color:var(--lime);font-size:10px;white-space:nowrap;margin-left:5px}
+.site{padding:15px 17px}.site h3{margin-bottom:9px}.site-line{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #27313e;padding:10px 0;color:#b0bdcf}.site-line strong{font-size:14px;color:var(--ink);font-weight:770}
+.other{display:grid;grid-template-columns:1fr 1fr;min-height:95px}.other>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:16px}.other>div+div{border-left:1px solid #2a333e}.other strong{font-size:30px;line-height:1;font-weight:780;letter-spacing:-.025em}.other span{color:var(--muted);font-size:12px}
+.insight .insight-line{display:grid;grid-template-columns:163px 1fr;border-bottom:1px solid #2d3744;gap:0}.insight .insight-line:last-child{border-bottom:0}
+.insight b{padding:12px 15px;color:#e0e7f1;font-size:12px}.insight p{margin:0;padding:12px 15px;font-size:12px;color:#b9c5d6}.insight .focus{background:#243153}.insight .focus b{color:var(--lime)}
+footer{color:#71809a;font-size:11px;margin-top:23px;border-top:1px solid #242e3b;padding-top:15px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:820px){.top{align-items:flex-start}.brand-side{display:none}.cards4{grid-template-columns:repeat(2,1fr)}.cards2{grid-template-columns:1fr}.shell{padding:20px 15px}.toolbar{align-items:stretch}.period{width:100%;justify-content:space-between;margin-right:0}}
+@media(max-width:550px){h1{font-size:25px}.logobox{width:43px;height:43px}.cards4{gap:8px}.kpi{padding:12px;min-height:127px}.kpi .big{font-size:30px}.secttitle{flex-wrap:wrap}.secttitle small{width:100%}.data-table{font-size:10px}.data-table th,.data-table td{padding:8px 6px}.cell-delta{display:block;margin-left:0}.insight .insight-line{grid-template-columns:1fr}.insight b{padding:10px 13px 0}.insight p{padding:5px 13px 12px}.urlinput,.keyinput{min-width:100%}.period select{min-width:180px;max-width:210px}}
+@media print{@page{size:A4 portrait;margin:8mm}html,body{background:#0a0e15!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.shell{padding:0;max-width:none}.toolbar,.sync,.minihelp{display:none!important}section{margin-top:16px}.top{padding-bottom:12px}h1{font-size:24px}h2{font-size:15px}.secttitle{margin-bottom:7px}.kpi{min-height:105px;padding:10px}.kpi .big{font-size:29px;margin:8px 0}.person{padding:10px 12px 2px}.metricline{padding:6px 0}.site-line{padding:5px 0}.data-table th,.data-table td{padding:8px 10px}.insight b,.insight p{padding:8px 10px}.card,section{break-inside:avoid}footer{margin-top:12px}}
+</style></head><body>
+<main class="shell">
+  <header class="top"><div class="brand"><div class="logobox">TW<br>EN</div><div><h1>Weekly KPI Report</h1><p class="subtitle">Leads · Personal branding · LinkedIn · Website · Content</p></div></div><div class="brand-side"><strong>Twendee Marketing</strong>Twendee Soft · Twendee Labs · Agentee</div></header>
+  <div class="toolbar" aria-label="Dashboard controls">
+    <label class="period">Reporting period <select id="periodSelect" aria-label="Reporting period"></select></label>
+    <button id="importBtn" class="btn primary" type="button">Import Notion CSV</button>
+    <input type="file" id="fileInput" accept=".csv,.json,text/csv,application/json" aria-label="Choose Notion export CSV or JSON">
+    <button id="syncToggle" class="btn" type="button">Connect API</button>
+    <button id="exportBtn" class="btn" type="button">Export JSON</button>
+    <button id="printBtn" class="btn" type="button">Print / PDF</button>
+  </div>
+  <div id="syncPanel" class="sync">
+    <label class="sr-only" for="apiUrl">Dashboard API URL</label><input class="urlinput" id="apiUrl" placeholder="Secure dashboard API URL (https://…)" type="url">
+    <label class="sr-only" for="apiKey">Optional read access key</label><input class="keyinput" id="apiKey" placeholder="Read access key (optional)" type="password" autocomplete="off">
+    <button id="syncBtn" class="btn primary" type="button">Sync now</button>
+    <span class="minihelp">Use the separate server-side proxy. Never paste a Notion integration token here.</span>
+  </div>
+  <p class="minihelp"><span id="status" class="status" role="status">Loading dashboard…</span> · Import Notion database CSV to update values; all charts below refresh automatically.</p>
+  <section><div class="secttitle"><h2>Lead funnel</h2><small>Actual vs. target</small></div><div class="cards4" id="funnel"></div></section>
+  <section><div class="secttitle"><h2>Personal branding</h2><small id="personalCaption">Posts per person</small></div><div class="cards2" id="personal"></div></section>
+  <section><div class="secttitle"><h2>LinkedIn brand pages</h2></div><div class="card" style="overflow-x:auto"><table class="data-table"><thead><tr><th>Brand</th><th>Posts</th><th>Impressions</th><th>Engagements</th><th>New followers</th></tr></thead><tbody id="brands"></tbody></table></div></section>
+  <section><div class="secttitle"><h2>Website traffic</h2></div><div class="cards2" id="websites"></div></section>
+  <section><div class="secttitle"><h2>Other activities</h2></div><div class="card other" id="other"></div></section>
+  <section><div class="secttitle"><h2>Key insights</h2><small>Generated from selected KPI records</small></div><div class="card insight" id="insights"></div></section>
+  <footer><span>Prepared by Twendee Marketing</span><span id="sourceNote">Source: Notion KPI Records · awaiting first sync</span></footer>
+</main>
+<script>
+'use strict';
+const BASELINE = []; // No private metrics are embedded in published HTML.
+const NOTION_DB = 'https://app.notion.com/p/6fc8d546d32a485b9ed4e0f43102259d';
+const $=id=>document.getElementById(id);
+const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const number=v=>typeof v==='number'&&Number.isFinite(v)?new Intl.NumberFormat('en-US').format(v):'—';
+const val=v=>v===null||v===undefined||v===''?null:Number(v);
+const delta=v=>v===null||v===undefined||v===''?'':(Number(v)>=0?'+':'')+Number(v).toLocaleString('en-US',{maximumFractionDigits:1})+'%';
+let records=BASELINE.map(x=>({...x})),activePeriod=null,source='Notion baseline snapshot';
+function status(msg,isError=false){$('status').textContent=msg;$('status').classList.toggle('error',isError)}
+function emptyMetric(){return {Actual:null,Target:null,'Change %':null}}
+function selectedRecords(){return records.filter(x=>x['Reporting Period']===activePeriod)}
+function get(section,account,metric){return selectedRecords().find(r=>r.Section===section&&r.Account===account&&r.Metric===metric)||emptyMetric()}
+function fmtMetric(section,account,metric){return number(get(section,account,metric).Actual)}
+function metricCell(section,account,metric){const row=get(section,account,metric);return `<span class="cell-value">${number(row.Actual)}</span>${row['Change %']!==null&&row['Change %']!==undefined?` <span class="cell-delta">${escapeHtml(delta(row['Change %']))}</span>`:''}`}
+function periods(){return [...new Set(records.map(r=>r['Reporting Period']).filter(Boolean))]}
+function displayPeriods(preferred){
+ const periodsArr=periods();activePeriod=periodsArr.includes(preferred)?preferred:periodsArr.at(-1);
+ $('periodSelect').innerHTML=periodsArr.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('');
+ $('periodSelect').value=activePeriod||'';
+}
+function render(){
+ const leadDefs=[['Marketing leads','lead.marketing'],['Calendly calls','lead.calendly'],['Website contact','lead.website'],['Warm / qualified lead','lead.qualified']];
+ $('funnel').innerHTML=leadDefs.map(([metric],i)=>{
+  const r=get('Lead funnel','Marketing',metric),hasTarget=typeof r.Target==='number'&&r.Target>0,hasActual=typeof r.Actual==='number';
+  const pct=hasActual&&hasTarget?r.Actual/r.Target*100:null;
+  const isWarning=(metric==='Website contact'&&r.Actual===0);
+  const big=pct!==null?Math.round(pct)+'%':hasActual?number(r.Actual):'N/A';
+  const subtitle=hasActual?(hasTarget?`${number(r.Actual)} actual / ${number(r.Target)} target`:`${number(r.Actual)} actual · target not set`):`Target ${r.Target??'—'} · actual pending`;
+  return `<div class="card kpi ${pct>=100?'good':isWarning?'bad':!hasActual?'pending':''}"><div class="label">${escapeHtml(metric)}</div><div class="big">${escapeHtml(big)}</div><div class="sub">${escapeHtml(subtitle)}</div><div class="rail"><div class="fill" style="width:${pct===null?0:Math.max(0,Math.min(pct,100))}%"></div></div></div>`
+ }).join('');
+ const people=['Erik','Cris'];
+ $('personal').innerHTML=people.map(person=>{
+   const p=get('Personal branding',person,'Posts'),other=['Impressions','Members reached','Engagements'];
+   return `<div class="card person"><div class="person-header"><div class="avatar">${escapeHtml(person[0])}</div><div><h3>${escapeHtml(person)}</h3><small>${number(p.Actual)} posts${typeof p.Target==='number'?` / ${number(p.Target)} target`:''}</small></div></div>${other.map(metric=>{const r=get('Personal branding',person,metric);return `<div class="metricline"><span class="mlabel">${escapeHtml(metric)}</span><span class="mnum">${number(r.Actual)}</span><span class="delta ${r['Change %']===null||r['Change %']===undefined?'missing':''}">${escapeHtml(delta(r['Change %']))||'—'}</span></div>`}).join('')}</div>`
+ }).join('');
+ const personComplete=people.every(person=>{const p=get('Personal branding',person,'Posts');return typeof p.Actual==='number'&&typeof p.Target==='number'&&p.Actual>=p.Target});
+ $('personalCaption').textContent=personComplete?'Posts target achieved for Erik & Cris':'Target status based on available data';
+ $('brands').innerHTML=['Twendee Soft','Twendee Labs','Agentee'].map(a=>`<tr class="${a==='Twendee Labs'?'featured':''}"><td class="cell-main">${escapeHtml(a)}</td><td>${metricCell('LinkedIn brand pages',a,'Posts')}</td><td>${metricCell('LinkedIn brand pages',a,'Impressions')}</td><td>${metricCell('LinkedIn brand pages',a,'Engagements')}</td><td>${metricCell('LinkedIn brand pages',a,'New followers')}</td></tr>`).join('');
+ $('websites').innerHTML=['Twendee Soft website','Twendee Labs website'].map(a=>`<div class="card site"><h3>${escapeHtml(a)}</h3>${['Active users','New users','Event count'].map(metric=>`<div class="site-line"><span>${escapeHtml(metric)}</span><strong>${fmtMetric('Website traffic',a,metric)}</strong></div>`).join('')}</div>`).join('');
+ $('other').innerHTML=[['Blogs published','blogs published'],['Newsletters sent','newsletters sent']].map(([metric,label])=>`<div><strong>${fmtMetric('Other activities','Content',metric)}</strong><span>${label}</span></div>`).join('');
+ const lead=get('Lead funnel','Marketing','Marketing leads'),calls=get('Lead funnel','Marketing','Calendly calls'),contact=get('Lead funnel','Marketing','Website contact'),qualified=get('Lead funnel','Marketing','Warm / qualified lead');
+ const lb=typeof lead.Actual==='number'?number(lead.Actual):'—', cb=typeof calls.Actual==='number'?number(calls.Actual):'—';
+ const labsGrowth=get('LinkedIn brand pages','Twendee Labs','Impressions')['Change %'];
+ const insights=[
+ ['Lead generation',`${lb} leads${lead.Target?` / target ${number(lead.Target)}`:''}; ${cb} Calendly calls${calls.Target?` / target ${number(calls.Target)}`:''}.`],
+ ['Brand visibility',labsGrowth!=null?`Twendee Labs impressions changed ${delta(labsGrowth)} versus the prior period.`:'Review changes across personal and brand-page impressions.'],
+ ['Reporting gaps',`${contact.Actual===0?'0 website contact submissions.':'Website contact: '+number(contact.Actual)+'.'} ${qualified.Actual===null?'Qualified leads actual is pending.':'Qualified leads: '+number(qualified.Actual)+'.'}`],
+ ['Next focus','Track which channels and posts lead to Calendly bookings; review website lead capture.']
+ ];
+ $('insights').innerHTML=insights.map(([label,text],i)=>`<div class="insight-line ${i===3?'focus':''}"><b>${escapeHtml(label)}</b><p>${escapeHtml(text)}</p></div>`).join('');
+ $('sourceNote').textContent='Source: '+source+' · '+selectedRecords().length+' metric records';
+}
+function parseCSV(csv){
+ const data=[];let current='',row=[],quoted=false;
+ for(let i=0;i<csv.length;i++){const ch=csv[i];if(ch==='"'){if(quoted&&csv[i+1]==='"'){current+='"';i++}else quoted=!quoted}else if(ch===','&&!quoted){row.push(current);current=''}else if((ch==='\n'||ch==='\r')&&!quoted){if(ch==='\r'&&csv[i+1]==='\n')i++;row.push(current);current='';if(row.some(x=>x!==''))data.push(row);row=[]}else{current+=ch}}
+ row.push(current);if(row.some(x=>x!==''))data.push(row);
+ if(!data.length)throw Error('Empty CSV file.');
+ const headers=data.shift().map((h)=>h.replace(/^\uFEFF/,'').trim());
+ return data.map(cells=>Object.fromEntries(headers.map((h,i)=>[h,(cells[i]??'').trim()])));
+}
+function propValue(p){if(!p)return null;if(typeof p!=='object')return p;switch(p.type){case'title':case'rich_text':return(p[p.type]||[]).map(x=>x.plain_text??x.text?.content??'').join('');case'select':return p.select?.name??null;case'number':return p.number??null;case'date':return p.date?.start??null;default:return p.name??p.plain_text??null}}
+function fromNotionResponse(items){return items.map(page=>{const props=page.properties||{};return Object.fromEntries(Object.entries(props).map(([k,v])=>[k,propValue(v)]))})}
+function normalize(raw){
+ const arr=Array.isArray(raw)?raw:Array.isArray(raw?.records)?raw.records:Array.isArray(raw?.results)?fromNotionResponse(raw.results):Array.isArray(raw?.data)?raw.data:null;
+ if(!arr)throw Error('Expected an array of records, {records:[…]}, or Notion query results.');
+ const rows=arr.map((r,i)=>{
+   const str=k=>String(r[k]??'').trim();
+   const n=k=>{const x=r[k];if(x===null||x===undefined||String(x).trim()==='')return null;const cleaned=String(x).replace(/,/g,'').replace(/%/g,'').replace(/^\+/,'');const v=Number(cleaned);return Number.isFinite(v)?v:null};
+   return {'Metric ID':str('Metric ID'),'Reporting Period':str('Reporting Period')||str('Period'),'Week Start':str('Week Start'),'Section':str('Section'),'Account':str('Account'),'Metric':str('Metric'),'Actual':n('Actual'),'Target':n('Target'),'Change %':n('Change %'),'Data Status':str('Data Status'),'Sort Order':n('Sort Order')??i+1,'Notes':str('Notes')}
+ }).filter(r=>r['Reporting Period']&&r.Section&&r.Account&&r.Metric);
+ if(!rows.length)throw Error('Missing columns: Reporting Period, Section, Account, Metric. Export the database CSV from Notion.');
+ const seen=new Set();for(const r of rows){const unique=[r['Reporting Period'],r.Section,r.Account,r.Metric].join('::');if(seen.has(unique))throw Error('Duplicate metric in the same reporting period: '+unique);seen.add(unique)}
+ return rows.sort((a,b)=>a['Sort Order']-b['Sort Order']);
+}
+function loadData(payload,description){const next=normalize(payload);records=next;source=description;displayPeriods(null);render();status(`Loaded ${next.length} metrics from ${description}.`)}
+$('periodSelect').addEventListener('change',e=>{activePeriod=e.target.value;render()});
+$('importBtn').addEventListener('click',()=>$('fileInput').click());
+$('fileInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{const raw=await f.text();loadData(f.name.toLowerCase().endsWith('.json')?JSON.parse(raw):parseCSV(raw),`file: ${f.name}`)}catch(err){status(err.message,true)}finally{e.target.value=''}});
+$('syncToggle').addEventListener('click',()=>{$('syncPanel').classList.toggle('open')});
+$('syncBtn').addEventListener('click',async()=>{
+ const url=$('apiUrl').value.trim(),key=$('apiKey').value;
+ if(!url.startsWith('https://'))return status('Enter an HTTPS URL to a secure proxy; not your Notion API token.',true);
+ const button=$('syncBtn');button.disabled=true;button.textContent='Syncing…';
+ try{const headers={Accept:'application/json'};if(key)headers['X-Dashboard-Key']=key;
+ const res=await fetch(url,{headers,cache:'no-store'});if(!res.ok)throw Error(`API request failed (${res.status}).`);
+ const payload=await res.json();loadData(payload,'secured Notion API sync');
+ }catch(err){status(`${err.message} Check CORS and the server-side integration.`,true)}finally{button.disabled=false;button.textContent='Sync now'}
+});
+$('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(records,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='twendee-kpi-records.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+$('printBtn').addEventListener('click',()=>window.print());
+displayPeriods();render();status(`Checking published Notion KPI snapshot…`);
+(async()=>{
+ try{
+  const res=await fetch('./data/kpi.json?v='+Date.now(),{cache:'no-store'});
+  if(!res.ok)throw Error(`HTTP ${res.status}`);
+  const json=await res.json();
+  loadData(json,'GitHub Pages · Notion sync');
+  const t=json.updatedAt?new Date(json.updatedAt).toLocaleString():null;
+  if(t)status('Notion data last synced: '+t+' · '+records.length+' KPI records.');
+ }catch(e){status('No published KPI snapshot yet. Import CSV for a local preview, or configure the private Notion sync. Details: '+e.message,true)}
+})();
+</script></body></html>
