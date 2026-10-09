@@ -63,6 +63,7 @@ footer{color:#71809a;font-size:11px;margin-top:23px;border-top:1px solid #242e3b
 @media(max-width:820px){.top{align-items:flex-start}.brand-side{display:none}.cards4{grid-template-columns:repeat(2,1fr)}.cards2{grid-template-columns:1fr}.shell{padding:20px 15px}.toolbar{align-items:stretch}.period{width:100%;justify-content:space-between;margin-right:0}}
 @media(max-width:550px){h1{font-size:25px}.logobox{width:43px;height:43px}.cards4{gap:8px}.kpi{padding:12px;min-height:127px}.kpi .big{font-size:30px}.secttitle{flex-wrap:wrap}.secttitle small{width:100%}.data-table{font-size:10px}.data-table th,.data-table td{padding:8px 6px}.cell-delta{display:block;margin-left:0}.insight .insight-line{grid-template-columns:1fr}.insight b{padding:10px 13px 0}.insight p{padding:5px 13px 12px}.urlinput,.keyinput{min-width:100%}.period select{min-width:180px;max-width:210px}}
 @media print{@page{size:A4 portrait;margin:8mm}html,body{background:#0a0e15!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.shell{padding:0;max-width:none}.toolbar,.sync,.minihelp{display:none!important}section{margin-top:16px}.top{padding-bottom:12px}h1{font-size:24px}h2{font-size:15px}.secttitle{margin-bottom:7px}.kpi{min-height:105px;padding:10px}.kpi .big{font-size:29px;margin:8px 0}.person{padding:10px 12px 2px}.metricline{padding:6px 0}.site-line{padding:5px 0}.data-table th,.data-table td{padding:8px 10px}.insight b,.insight p{padding:8px 10px}.card,section{break-inside:avoid}footer{margin-top:12px}}
+.other .fullwidth-extra{grid-column:1 / -1;border-left:0;border-top:1px solid #2a333e;padding:12px 18px 10px;display:block;text-align:left}.other .fullwidth-extra .extra-header{font-size:12px;font-weight:750;margin:0 0 4px;color:#d7e2d8}.other .fullwidth-extra .site-line{display:flex;flex-direction:row;justify-content:space-between;gap:20px;align-items:center;border-left:0;color:#b0bdcf;padding:10px 0}.other .fullwidth-extra .site-line strong{font-size:14px;font-weight:770;color:var(--ink)}
 </style></head><body>
 <main class="shell">
   <header class="top"><div class="brand"><div class="logobox">TW<br>EN</div><div><h1>Weekly KPI Report</h1><p class="subtitle">Leads · Personal branding · LinkedIn · Website · Content</p></div></div><div class="brand-side"><strong>Twendee Marketing</strong>Twendee Soft · Twendee Labs · Agentee</div></header>
@@ -85,7 +86,7 @@ footer{color:#71809a;font-size:11px;margin-top:23px;border-top:1px solid #242e3b
   <section><div class="secttitle"><h2>Personal branding</h2><small id="personalCaption">Posts per person</small></div><div class="cards2" id="personal"></div></section>
   <section><div class="secttitle"><h2>LinkedIn brand pages</h2></div><div class="card" style="overflow-x:auto"><table class="data-table"><thead><tr><th>Brand</th><th>Posts</th><th>Impressions</th><th>Engagements</th><th>New followers</th></tr></thead><tbody id="brands"></tbody></table></div></section>
   <section><div class="secttitle"><h2>Website traffic</h2></div><div class="cards2" id="websites"></div></section>
-  <section><div class="secttitle"><h2>Other activities</h2></div><div class="card other" id="other"></div><div class="card site" id="monthlyOther" style="margin-top:12px" hidden></div></section>
+  <section><div class="secttitle"><h2>Other activities</h2></div><div class="card other" id="other"></div></section>
   <section><div class="secttitle"><h2>Key insights</h2><small>Generated from selected KPI records</small></div><div class="card insight" id="insights"></div></section>
   <footer><span>Prepared by Twendee Marketing</span><span id="sourceNote">Source: Notion KPI Records · awaiting first sync</span></footer>
 </main>
@@ -142,11 +143,14 @@ function render(){
  ];
  $('insights').innerHTML=insights.map(([label,text],i)=>`<div class="insight-line ${i===3?'focus':''}"><b>${escapeHtml(label)}</b><p>${escapeHtml(text)}</p></div>`).join('');
  const isMonthly=/^\d{4}-\d{2}$/.test(activePeriod||'');
- // Only Content deliverables not already shown above: one additional card for monthly reports.
+ // Append only additional Content deliverables inside the existing Other Activities card.
  const extraContent=isMonthly?selectedRecords().filter(r=>r.Section==='Other activities'&&r.Account==='Content'&&!['Blogs published','Newsletters sent'].includes(r.Metric)):[];
- $('monthlyOther').hidden=extraContent.length===0;
  if(extraContent.length){
-  $('monthlyOther').innerHTML='<h3>Additional deliverables</h3>'+extraContent.map(r=>`<div class="site-line"><span>${escapeHtml(r.Metric)}</span><strong>${number(r.Actual)}</strong></div>`).join('');
+  const rows=extraContent.map(r=>{
+   const label=activePeriod==='2026-09'&&['Landing pages','Brochures'].includes(r.Metric)?r.Metric+' · CandiVision':r.Metric;
+   return `<div class="site-line"><span>${escapeHtml(label)}</span><strong>${typeof r.Actual==='number'?number(r.Actual):'Pending'}</strong></div>`;
+  }).join('');
+  $('other').innerHTML+=`<div class="fullwidth-extra"><div class="extra-header">Additional deliverables</div>${rows}</div>`;
  }
  $('sourceNote').textContent='Source: '+source+' · '+selectedRecords().length+' metric records';
 }
