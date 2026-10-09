@@ -14,8 +14,9 @@ html{color-scheme:light}body{background:#fff;color:var(--ink);font:14px/1.52 Int
 .m-card{padding:17px 18px}.m-card h3{font-size:15px;margin:0 0 12px;font-weight:760;letter-spacing:-.015em}.m-card .m-primary{border-top:1px solid var(--line);margin-top:8px;padding:12px 0}.m-primary small{font-size:11px;color:var(--muted);display:block}.m-primary strong{font-size:31px;font-weight:800;letter-spacing:-.045em;line-height:1.3}.m-card .m-sub{font-size:11px;color:var(--muted)}.m-card.good .m-primary strong{color:#237148}.m-card.bad .m-primary strong{color:var(--danger)}.m-card.pending .m-primary strong{font-size:23px;color:#93692b}
 .m-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;border-top:1px solid var(--line);padding:10px 0;font-size:12px}.m-row:first-child{border-top:0}.m-row .label{color:var(--muted)}.m-row strong{font-variant-numeric:tabular-nums}.m-row .trend{border-radius:5px;padding:3px 6px;font-size:10px;font-weight:780;white-space:nowrap}.trend.up{color:#236d45;background:#eaf6ee}.trend.down{color:#b14e45;background:#fff0ee}.pending-label{color:#93692b}.m-bar{height:5px;background:#edf2ef;border-radius:5px;overflow:hidden;margin-top:14px}.m-bar>i{display:block;height:100%;background:#478e62}
 .m-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:13px 0}.m-tile{border-radius:9px;background:#f7faf8;padding:10px}.m-tile small{display:block;font-size:10px;color:var(--muted)}.m-tile strong{font-size:22px;font-weight:790}.m-geo{margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}.m-geo span{display:inline-block;border:1px solid var(--line);border-radius:7px;padding:5px 8px;margin:7px 6px 0 0;color:#4b6758;font-size:11px}
-.m-output{padding:20px;text-align:center}.m-output strong{font-size:34px;font-weight:830;display:block}.m-output small{color:var(--muted)}.m-deliverables{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:13px}.m-deliverable{padding:15px;border:1px solid var(--line);border-radius:11px}.m-deliverable b{display:block;font-size:25px}.m-deliverable span,.m-deliverable small{display:block;font-size:11px;color:var(--muted)}.m-note{margin-top:12px;background:#fafcfb;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--muted);font-size:11px;line-height:1.7}
-@media(max-width:970px){.m-grid.three,.m-grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}.m-deliverables{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.m-output{padding:20px;text-align:center}.m-output strong{font-size:34px;font-weight:830;display:block}.m-output small{color:var(--muted)}.m-other{margin-top:13px}.m-other h3{margin:0 0 9px}.m-other .m-row:last-child{padding-bottom:0}.m-other .m-subtext{font-size:10px;color:var(--muted);margin-left:8px}.m-other-title{display:flex;align-items:center;gap:8px}
+.m-note{margin-top:12px;background:#fafcfb;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--muted);font-size:11px;line-height:1.7}
+@media(max-width:970px){.m-grid.three,.m-grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.shell{padding:20px 14px}.m-grid,.m-grid.three{grid-template-columns:1fr}.m-card{padding:14px}.m-grid.four{gap:8px}.m-grid.four .m-card{padding:12px}.m-grid.four .m-primary strong{font-size:25px}}
 @media print{html,body{background:#fff!important;color:#1d2d23!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.m-grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}.m-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.m-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.m-card{padding:10px}.m-primary strong{font-size:24px!important}.m-row{padding:6px 0}.card{box-shadow:none!important}.m-output{padding:12px}}
 </style></head><body>
@@ -51,7 +52,7 @@ html{color-scheme:light}body{background:#fff;color:var(--ink);font:14px/1.52 Int
   <section><div class="secttitle"><h2>03 · LinkedIn brand pages</h2><small>Organic reach and follower growth</small></div><div id="mBrands" class="m-grid three"></div></section>
   <section><div class="secttitle"><h2>04 · Website traffic</h2><small>Acquisition, organic users and reported geographies</small></div><div id="mWeb" class="m-grid"></div></section>
   <section><div class="secttitle"><h2>05 · Medium</h2><small>Presentations and views</small></div><div id="mMedium" class="m-grid"></div></section>
-  <section><div class="secttitle"><h2>06 · Content output</h2><small>Published articles and commercial materials</small></div><div id="mContent"></div></section>
+  <section><div class="secttitle"><h2>06 · Content & other activities</h2><small>Published output, plus activities not shown above</small></div><div id="mContent"></div></section>
   <section><div class="secttitle"><h2>07 · Key insights</h2><small>Supported by reporting data</small></div><div id="mInsights" class="m-grid"></div><div id="mNotes" class="m-note"></div></section>
   </div>
   <footer><span>Prepared by Twendee Marketing</span><span id="sourceNote">Source: Notion KPI Records · awaiting first sync</span></footer>
@@ -116,10 +117,19 @@ function renderMonthly(){
   return card(a,top+row('Website traffic',a,'Organic users')+loc);
  }).join('');
  $('mMedium').innerHTML=['Twendee Soft','Twendee Labs'].map(a=>card(a,row('Other activities',a,'Medium presentations','Presentations')+row('Other activities',a,'Medium views','Views'))).join('');
+
  const content=m=>getRow('Other activities','Content',m);
- const summary=['Blogs published','Newsletters sent'].map(m=>`<div class="card m-output"><strong>${escapeHtml(val(content(m),m))}</strong><small>${escapeHtml(m)}</small></div>`).join('');
- const items=[['Landing pages','Landing page','CandiVision'],['Brochures','Brochure','CandiVision'],['Name cards','Name card',''],['Sales papers','Sales paper','']].filter(([m])=>all.some(r=>r.Section==='Other activities'&&r.Account==='Content'&&r.Metric===m)).map(([m,l,tag])=>`<div class="m-deliverable"><b>${escapeHtml(val(content(m),m))}</b><span>${escapeHtml(l)}</span>${tag?`<small>${escapeHtml(tag)}</small>`:''}</div>`).join('');
- $('mContent').innerHTML=`<div class="m-grid">${summary}</div>${items?`<div class="m-deliverables">${items}</div>`:''}`;
+ const summary=['Blogs published','Newsletters sent'].map(m=>
+  `<div class="card m-output"><strong>${escapeHtml(val(content(m),m))}</strong><small>${escapeHtml(m)}</small></div>`
+ ).join('');
+ // Show each Content metric exactly once. The Medium stats are already in section 05.
+ const others=all.filter(r=>r.Section==='Other activities'&&r.Account==='Content'&&!['Blogs published','Newsletters sent'].includes(r.Metric));
+ const label=m=>({'Landing pages':'Landing page','Brochures':'Brochure','Name cards':'Name card','Sales papers':'Sales paper'}[m]||m);
+ const rest=others.map(r=>{
+  const note=activePeriod==='2026-09'&&['Landing pages','Brochures'].includes(r.Metric)?'CandiVision':'';
+  return `<div class="m-row"><span class="label">${escapeHtml(label(r.Metric))}${note?`<span class="m-subtext">${escapeHtml(note)}</span>`:''}</span><strong>${escapeHtml(val(r,r.Metric))}</strong></div>`;
+ }).join('');
+ $('mContent').innerHTML=`<div class="m-grid">${summary}</div>${rest?`<div class="card m-card m-other"><h3>Other Activities</h3>${rest}</div>`:''}`;
  const lead=getRow('Lead funnel','Marketing','Marketing leads'),calls=getRow('Lead funnel','Marketing','Calendly calls'),contact=getRow('Lead funnel','Marketing','Website contact'),agent=getRow('LinkedIn brand pages','Agentee','Engagements');
  const achieve=r=>known(r)&&r.Target>0?(Math.round(r.Actual/r.Target*1000)/10).toLocaleString('en-US',{maximumFractionDigits:1})+'%':'not reported';
  const p=all.filter(r=>!known(r)).length;
