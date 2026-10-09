@@ -85,8 +85,7 @@ footer{color:#71809a;font-size:11px;margin-top:23px;border-top:1px solid #242e3b
   <section><div class="secttitle"><h2>Personal branding</h2><small id="personalCaption">Posts per person</small></div><div class="cards2" id="personal"></div></section>
   <section><div class="secttitle"><h2>LinkedIn brand pages</h2></div><div class="card" style="overflow-x:auto"><table class="data-table"><thead><tr><th>Brand</th><th>Posts</th><th>Impressions</th><th>Engagements</th><th>New followers</th></tr></thead><tbody id="brands"></tbody></table></div></section>
   <section><div class="secttitle"><h2>Website traffic</h2></div><div class="cards2" id="websites"></div></section>
-  <section><div class="secttitle"><h2>Other activities</h2></div><div class="card other" id="other"></div></section>
-  <section id="monthlySection" hidden><div class="secttitle"><h2>Monthly additional KPIs</h2><small>Detailed metrics reported for the selected month</small></div><div class="card" style="overflow-x:auto"><table class="data-table"><thead><tr><th>Section</th><th>Account</th><th>Metric</th><th>Actual</th></tr></thead><tbody id="monthlyExtras"></tbody></table></div></section>
+  <section><div class="secttitle"><h2>Other activities</h2></div><div class="card other" id="other"></div><div class="card site" id="monthlyOther" style="margin-top:12px" hidden></div></section>
   <section><div class="secttitle"><h2>Key insights</h2><small>Generated from selected KPI records</small></div><div class="card insight" id="insights"></div></section>
   <footer><span>Prepared by Twendee Marketing</span><span id="sourceNote">Source: Notion KPI Records · awaiting first sync</span></footer>
 </main>
@@ -143,11 +142,11 @@ function render(){
  ];
  $('insights').innerHTML=insights.map(([label,text],i)=>`<div class="insight-line ${i===3?'focus':''}"><b>${escapeHtml(label)}</b><p>${escapeHtml(text)}</p></div>`).join('');
  const isMonthly=/^\d{4}-\d{2}$/.test(activePeriod||'');
- $('monthlySection').hidden=!isMonthly;
- if(isMonthly){
-  const shown={'Lead funnel':['Marketing leads','Calendly calls','Website contact','Warm / qualified lead'],'Personal branding':['Posts','Impressions','Members reached','Engagements'],'LinkedIn brand pages':['Posts','Impressions','Engagements','New followers'],'Website traffic':['Active users','New users','Event count'],'Other activities':['Blogs published','Newsletters sent']};
-  const extras=selectedRecords().filter(r=>!(shown[r.Section]||[]).includes(r.Metric)||(r.Section==='Other activities'&&r.Account!=='Content'));
-  $('monthlyExtras').innerHTML=extras.map(r=>'<tr><td>'+escapeHtml(r.Section)+'</td><td>'+escapeHtml(r.Account)+'</td><td>'+escapeHtml(r.Metric)+'</td><td class="cell-value">'+(typeof r.Actual==='number'?number(r.Actual)+(r.Metric.endsWith('%')?'%':''):'Pending')+'</td></tr>').join('');
+ // Only Content deliverables not already shown above: one additional card for monthly reports.
+ const extraContent=isMonthly?selectedRecords().filter(r=>r.Section==='Other activities'&&r.Account==='Content'&&!['Blogs published','Newsletters sent'].includes(r.Metric)):[];
+ $('monthlyOther').hidden=extraContent.length===0;
+ if(extraContent.length){
+  $('monthlyOther').innerHTML='<h3>Additional deliverables</h3>'+extraContent.map(r=>`<div class="site-line"><span>${escapeHtml(r.Metric)}</span><strong>${number(r.Actual)}</strong></div>`).join('');
  }
  $('sourceNote').textContent='Source: '+source+' · '+selectedRecords().length+' metric records';
 }
