@@ -108,8 +108,8 @@ function fmtMetric(section,account,metric){const v=get(section,account,metric).A
 function metricCell(section,account,metric){const row=get(section,account,metric);return `<span class="cell-value">${number(row.Actual)}</span>${row['Change %']!==null&&row['Change %']!==undefined?` <span class="cell-delta">${escapeHtml(delta(row['Change %']))}</span>`:''}`}
 function periods(){const order=p=>{const start=records.find(r=>r['Reporting Period']===p&&r['Week Start'])?.['Week Start'];const t=start?Date.parse(start):NaN;return Number.isFinite(t)?t:0};return [...new Set(records.map(r=>r['Reporting Period']).filter(Boolean))].sort((a,b)=>order(b)-order(a)||a.localeCompare(b))}
 function displayPeriods(preferred){
- const periodsArr=periods();activePeriod=periodsArr.includes(preferred)?preferred:periodsArr.find(x=>/^\d{4}-W\d{2}$/.test(x))||periodsArr[0]||null;
- $('periodSelect').innerHTML=periodsArr.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(/^\d{4}-\d{2}$/.test(x)?x+' · Monthly':/^\d{4}-W\d{2}$/.test(x)?x+' · Weekly':x)}</option>`).join('');
+ const periodsArr=periods();const linkPeriod=new URLSearchParams(location.search).get('period');activePeriod=periodsArr.includes(preferred)?preferred:periodsArr.includes(linkPeriod)?linkPeriod:periodsArr.find(x=>/^\d{4}-W\d{2}$/.test(x))||periodsArr[0]||null;
+ $('periodSelect').innerHTML=periodsArr.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x==='2026-W41-05-09'?'05–09 Oct 2026 · Partial week':/^\d{4}-\d{2}$/.test(x)?x+' · Monthly':/^\d{4}-W\d{2}$/.test(x)?x+' · Weekly':x)}</option>`).join('');
  $('periodSelect').value=activePeriod||'';
 }
 function render(){
@@ -176,8 +176,8 @@ function normalize(raw){
  const seen=new Set();for(const r of rows){const unique=[r['Reporting Period'],r.Section,r.Account,r.Metric].join('::');if(seen.has(unique))throw Error('Duplicate metric in the same reporting period: '+unique);seen.add(unique)}
  return rows.sort((a,b)=>a['Sort Order']-b['Sort Order']);
 }
-function loadData(payload,description){const next=normalize(payload);records=next;source=description;displayPeriods(null);render();status(`Loaded ${next.length} metrics from ${description}.`)}
-$('periodSelect').addEventListener('change',e=>{activePeriod=e.target.value;render()});
+function loadData(payload,description){const next=normalize(payload);records=next;source=description;displayPeriods(activePeriod);render();status(`Loaded ${next.length} metrics from ${description}.`)}
+$('periodSelect').addEventListener('change',e=>{activePeriod=e.target.value;const url=new URL(location.href);url.searchParams.set('period',activePeriod);history.replaceState(null,'',url);render()});
 $('importBtn').addEventListener('click',()=>$('fileInput').click());
 $('fileInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{const raw=await f.text();loadData(f.name.toLowerCase().endsWith('.json')?JSON.parse(raw):parseCSV(raw),`file: ${f.name}`)}catch(err){status(err.message,true)}finally{e.target.value=''}});
 $('syncToggle').addEventListener('click',()=>{$('syncPanel').classList.toggle('open')});
