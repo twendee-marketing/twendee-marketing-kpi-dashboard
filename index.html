@@ -1,206 +1,205 @@
 <!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="color-scheme" content="dark">
-<title>Twendee Marketing · KPI Dashboard</title>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Marketing Report · Monthly & Weekly</title>
 <style>
-:root{--bg:#0a0e15;--panel:#151b24;--panel2:#111822;--line:#27303d;--ink:#e8edf5;--muted:#98a5b8;--lime:#a7d878;--green:#80b959;--danger:#f28b7e;--blue:#8bafff;--highlight:#263a58;--radius:12px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.48 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.shell{max-width:1040px;margin:0 auto;padding:30px 26px 34px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-bottom:22px;border-bottom:2px solid #719c4d}
-.brand{display:flex;gap:15px;align-items:center}
-.logobox{flex-shrink:0;width:51px;height:51px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(140deg,#7fb957,#4d7e38);color:#fff;font-size:12px;font-weight:800;letter-spacing:.06em;text-align:center;line-height:1.15}
-h1{font-size:31px;line-height:1.15;letter-spacing:-.035em;margin:0 0 5px;font-weight:780}
-.subtitle{color:var(--muted);font-size:12px;margin:0}
-.brand-side{text-align:right;color:var(--muted);font-size:11px}
-.brand-side strong{color:var(--lime);display:block;font-size:12px}
-.toolbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:18px 0 7px}
-.period{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;margin-right:auto}
-.period select{min-width:220px;max-width:345px}
-select,.urlinput,.keyinput{background:#171f2b;border:1px solid #364357;color:var(--ink);border-radius:8px;padding:9px 10px;outline-offset:2px;min-height:37px}
-.urlinput{min-width:300px;flex:1}.keyinput{min-width:160px;flex:0.5}
-.btn{background:#1b2532;color:#e3e9f5;border:1px solid #384659;padding:9px 12px;min-height:37px;border-radius:8px;font-weight:620;white-space:nowrap}
-.btn:hover{background:#273347}.btn.primary{background:#293d25;border-color:#4f7840;color:#d7f7b8}
-.btn:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--lime)}
-#fileInput{display:none}
-.sync{display:none;gap:9px;align-items:center;flex-wrap:wrap;background:#111824;border:1px solid #2b3647;border-radius:10px;padding:12px;margin-top:10px}
-.sync.open{display:flex}
-.minihelp{font-size:11px;color:var(--muted);line-height:1.5;margin:4px 0 14px}
-.status{font-size:11px;color:#a7c58e;white-space:normal}
-.error{color:#ffc5b9}
-section{margin-top:28px}
-.secttitle{display:flex;gap:11px;align-items:baseline;margin:0 0 12px}
-h2{font-size:19px;font-weight:740;letter-spacing:-.018em;margin:0}.secttitle small{color:var(--muted);font-size:11px}
-.cards4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.cards2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
-.kpi{padding:14px 15px 15px;min-height:131px;position:relative}
-.kpi.good{background:linear-gradient(160deg,#202e21 0%,#171e1b 90%)}.kpi.bad{background:linear-gradient(160deg,#33201f,#211a1d)}
-.kpi .label{color:#b6c1cf;font-size:12px}.kpi .big{font-size:37px;line-height:1;font-weight:760;letter-spacing:-.045em;margin:14px 0 8px;font-variant-numeric:tabular-nums}
-.kpi.good .big{color:var(--lime)}.kpi.bad .big{color:var(--danger)}.kpi.pending .big{color:#c5d2ed}
-.sub{font-size:11px;color:#b6bfcd;line-height:1.4}
-.kpi .rail{height:5px;background:#2e3946;border-radius:3px;margin-top:12px;overflow:hidden}
-.kpi .fill{height:100%;width:0;background:var(--green);border-radius:3px}
-.person{padding:15px 18px 5px}.person-header{display:flex;gap:10px;align-items:center;margin-bottom:9px}
-.avatar{background:#d2d9e8;color:#283345;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:11px}
-.person h3,.site h3{font-size:13px;margin:0 0 2px;font-weight:750}.person-header small{font-size:11px;color:var(--muted)}
-.metricline{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;border-top:1px solid #283340;padding:11px 0}
-.metricline .mlabel{color:#acb8c9;font-size:12px}.metricline .mnum{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
-.delta{font-size:10px;font-weight:750;color:var(--lime);background:#273922;border-radius:5px;padding:2px 5px;min-width:54px;text-align:center}
-.delta.missing{background:transparent;color:transparent}
-.data-table{border-collapse:collapse;width:100%;font-size:12px}.data-table th,.data-table td{padding:12px 15px;border-bottom:1px solid #2a333e;text-align:left}
-.data-table th{color:#93a5bd;background:#171f2a;font-size:11px;font-weight:600}.data-table tr:last-child td{border-bottom:0}
-.data-table tr.featured{background:#1e3020}.data-table tr.featured td:first-child{box-shadow:inset 3px 0 #8abe55}
-.cell-main{font-weight:750;white-space:nowrap}.cell-value{font-weight:730;font-variant-numeric:tabular-nums}.cell-delta{color:var(--lime);font-size:10px;white-space:nowrap;margin-left:5px}
-.site{padding:15px 17px}.site h3{margin-bottom:9px}.site-line{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #27313e;padding:10px 0;color:#b0bdcf}.site-line strong{font-size:14px;color:var(--ink);font-weight:770}
-.other{display:grid;grid-template-columns:1fr 1fr;min-height:95px}.other>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:16px}.other>div+div{border-left:1px solid #2a333e}.other strong{font-size:30px;line-height:1;font-weight:780;letter-spacing:-.025em}.other span{color:var(--muted);font-size:12px}
-.insight .insight-line{display:grid;grid-template-columns:163px 1fr;border-bottom:1px solid #2d3744;gap:0}.insight .insight-line:last-child{border-bottom:0}
-.insight b{padding:12px 15px;color:#e0e7f1;font-size:12px}.insight p{margin:0;padding:12px 15px;font-size:12px;color:#b9c5d6}.insight .focus{background:#243153}.insight .focus b{color:var(--lime)}
-footer{color:#71809a;font-size:11px;margin-top:23px;border-top:1px solid #242e3b;padding-top:15px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media(max-width:820px){.top{align-items:flex-start}.brand-side{display:none}.cards4{grid-template-columns:repeat(2,1fr)}.cards2{grid-template-columns:1fr}.shell{padding:20px 15px}.toolbar{align-items:stretch}.period{width:100%;justify-content:space-between;margin-right:0}}
-@media(max-width:550px){h1{font-size:25px}.logobox{width:43px;height:43px}.cards4{gap:8px}.kpi{padding:12px;min-height:127px}.kpi .big{font-size:30px}.secttitle{flex-wrap:wrap}.secttitle small{width:100%}.data-table{font-size:10px}.data-table th,.data-table td{padding:8px 6px}.cell-delta{display:block;margin-left:0}.insight .insight-line{grid-template-columns:1fr}.insight b{padding:10px 13px 0}.insight p{padding:5px 13px 12px}.urlinput,.keyinput{min-width:100%}.period select{min-width:180px;max-width:210px}}
-@media print{@page{size:A4 portrait;margin:8mm}html,body{background:#0a0e15!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.shell{padding:0;max-width:none}.toolbar,.sync,.minihelp{display:none!important}section{margin-top:16px}.top{padding-bottom:12px}h1{font-size:24px}h2{font-size:15px}.secttitle{margin-bottom:7px}.kpi{min-height:105px;padding:10px}.kpi .big{font-size:29px;margin:8px 0}.person{padding:10px 12px 2px}.metricline{padding:6px 0}.site-line{padding:5px 0}.data-table th,.data-table td{padding:8px 10px}.insight b,.insight p{padding:8px 10px}.card,section{break-inside:avoid}footer{margin-top:12px}}
-.other .fullwidth-extra{grid-column:1 / -1;border-left:0;border-top:1px solid #2a333e;padding:12px 18px 10px;display:block;text-align:left}.other .fullwidth-extra .extra-header{font-size:12px;font-weight:750;margin:0 0 4px;color:#d7e2d8}.other .fullwidth-extra .site-line{display:flex;flex-direction:row;justify-content:space-between;gap:20px;align-items:center;border-left:0;color:#b0bdcf;padding:10px 0}.other .fullwidth-extra .site-line strong{font-size:14px;font-weight:770;color:var(--ink)}
-</style></head><body>
-<main class="shell">
-  <header class="top"><div class="brand"><div class="logobox">TW<br>EN</div><div><h1>Weekly KPI Report</h1><p class="subtitle">Leads · Personal branding · LinkedIn · Website · Content</p></div></div><div class="brand-side"><strong>Twendee Marketing</strong>Twendee Soft · Twendee Labs · Agentee</div></header>
-  <div class="toolbar" aria-label="Dashboard controls">
-    <label class="period">Reporting period <select id="periodSelect" aria-label="Reporting period"></select></label>
-    <button id="importBtn" class="btn primary" type="button">Import Notion CSV</button>
-    <input type="file" id="fileInput" accept=".csv,.json,text/csv,application/json" aria-label="Choose Notion export CSV or JSON">
-    <button id="syncToggle" class="btn" type="button">Connect API</button>
-    <button id="exportBtn" class="btn" type="button">Export JSON</button>
-    <button id="printBtn" class="btn" type="button">Print / PDF</button>
-  </div>
-  <div id="syncPanel" class="sync">
-    <label class="sr-only" for="apiUrl">Dashboard API URL</label><input class="urlinput" id="apiUrl" placeholder="Secure dashboard API URL (https://…)" type="url">
-    <label class="sr-only" for="apiKey">Optional read access key</label><input class="keyinput" id="apiKey" placeholder="Read access key (optional)" type="password" autocomplete="off">
-    <button id="syncBtn" class="btn primary" type="button">Sync now</button>
-    <span class="minihelp">Use the separate server-side proxy. Never paste a Notion integration token here.</span>
-  </div>
-  <p class="minihelp"><span id="status" class="status" role="status">Loading dashboard…</span> · Import Notion database CSV to update values; all charts below refresh automatically.</p>
-  <section><div class="secttitle"><h2>Lead funnel</h2><small>Actual vs. target</small></div><div class="cards4" id="funnel"></div></section>
-  <section><div class="secttitle"><h2>Personal branding</h2><small id="personalCaption">Posts per person</small></div><div class="cards2" id="personal"></div></section>
-  <section><div class="secttitle"><h2>LinkedIn brand pages</h2></div><div class="card" style="overflow-x:auto"><table class="data-table"><thead><tr><th>Brand</th><th>Posts</th><th>Impressions</th><th>Engagements</th><th>New followers</th></tr></thead><tbody id="brands"></tbody></table></div></section>
-  <section><div class="secttitle"><h2>Website traffic</h2></div><div class="cards2" id="websites"></div></section>
-  <section><div class="secttitle"><h2>Other activities</h2></div><div class="card other" id="other"></div></section>
-  <section><div class="secttitle"><h2>Key insights</h2><small>Generated from selected KPI records</small></div><div class="card insight" id="insights"></div></section>
-  <footer><span>Prepared by Twendee Marketing</span><span id="sourceNote">Source: Notion KPI Records · awaiting first sync</span></footer>
-</main>
+:root{color-scheme:light;--bg:#f5f7fb;--paper:#fff;--ink:#17243a;--sub:#62728a;--line:#e4e9f1;--blue:#4266dd;--blue-pale:#eff3ff;--mint:#117b60;--mint-pale:#e7f6ef;--red:#b84151;--red-pale:#fff0f1;--warn:#935e17;--warn-pale:#fff5e5;--shadow:0 2px 16px rgba(25,47,83,.045)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,select{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #86a5ff;outline-offset:3px}
+h1,h2,h3,p{margin-top:0}.wrap{max-width:1200px;padding:24px 24px 44px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:19px}.brand{display:flex;align-items:center;gap:11px}.brandicon{background:#233e99;border-radius:12px;width:43px;height:43px;color:#fff;display:grid;place-items:center;font-size:24px}.brand h1{font-size:21px;letter-spacing:-.6px;margin:0}.sub{color:var(--sub);font-size:12px}.source{color:var(--blue);font-size:12px;font-weight:650;text-decoration:none}.source:hover{text-decoration:underline}
+.control{border:1px solid var(--line);border-radius:17px;background:var(--paper);box-shadow:var(--shadow);padding:16px 18px;margin-bottom:15px}
+.control-top{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.pick{display:flex;flex-direction:column;gap:5px}.pick span{font-size:11px;font-weight:720;color:var(--sub)}select{min-width:130px;max-width:280px;padding:10px 35px 10px 11px;background:var(--paper);color:var(--ink);border:1px solid #dbe3f0;border-radius:10px;cursor:pointer;font-size:13px}
+.monthpicker{flex:1}.monthpicker select{width:100%;max-width:none}.arrows{display:flex;gap:5px;padding-bottom:0}.iconbtn{height:42px;width:42px;background:var(--paper);border:1px solid #dbe3f0;border-radius:10px;color:var(--ink)}.iconbtn:disabled{opacity:.35;cursor:not-allowed}
+.periodinfo{margin-left:auto;font-size:11px;background:var(--blue-pale);color:#3e57a0;border-radius:99px;padding:7px 11px;white-space:nowrap}
+.weekbar{display:flex;gap:7px;align-items:center;overflow-x:auto;padding:12px 0 2px;margin-top:13px;border-top:1px solid var(--line);scrollbar-width:thin}.weekbtn{flex:0 0 auto;background:#f7f9fc;border:1px solid #e3e9f3;border-radius:10px;padding:8px 13px;color:#556780;font-weight:650;font-size:12px;white-space:nowrap}
+.weekbtn.active{background:#eaf0ff;border-color:#7993e2;color:#2b4ec4}.weekbtn.unassigned{border-color:#eedeb8;background:#fffaf0;color:#895b22}.weekbtn.unassigned.active{background:#fff0d6;border-color:#d3aa58}
+.weekbtn .count{font-size:10px;color:#8995a4;font-weight:500;margin-left:4px}.weekbar .sep{flex:0 0 auto;width:1px;height:25px;background:#dce3ed;margin:0 4px}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:18px 0 17px}.hero h2{margin:0;font-size:23px;letter-spacing:-.5px}.hero .desc{color:var(--sub);font-size:12px;margin-top:3px}.status{display:inline-block;border-radius:20px;background:var(--warn-pale);color:var(--warn);font-size:11px;padding:6px 10px;white-space:nowrap}
+.explain{background:#f0f4fb;border:1px solid #dde7f5;padding:12px 15px;border-radius:12px;color:#48627e;font-size:12px;margin:0 0 17px}
+.section{margin:22px 0}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:11px}.sectionhead h3{font-size:16px;margin:0;font-weight:760;letter-spacing:-.25px}.hint{font-size:11px;color:var(--sub)}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.kpi{padding:17px;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.kpi .name{font-size:12px;color:var(--sub);font-weight:700;min-height:20px}.kpi .numbers{display:flex;align-items:baseline;gap:7px;margin:8px 0}.kpi strong{font-size:30px;letter-spacing:-.8px;line-height:1.2}.kpi .goal{font-size:12px;color:#8895a6}.measure{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:650}.positive{color:var(--mint)}.negative{color:var(--red)}.neutral{color:var(--sub)}.bar{height:6px;background:#e9edf3;border-radius:10px;overflow:hidden;margin-top:12px}.bar>div{height:100%;background:var(--blue);border-radius:10px}.bar>div.negative{background:#e07985}
+.insights{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.insight{background:var(--paper);border-radius:12px;border:1px solid var(--line);padding:15px;box-shadow:var(--shadow)}.insight .head{display:flex;gap:7px;align-items:center;font-size:11px;font-weight:780;margin-bottom:7px}.insight .body{font-size:12px;line-height:1.55}.insight.green .head{color:var(--mint)}.insight.red .head{color:var(--red)}.insight.blue .head{color:var(--blue)}.insight.amber .head{color:var(--warn)}
+.two{display:grid;grid-template-columns:1.25fr .75fr;gap:11px}.box{border:1px solid var(--line);border-radius:14px;background:var(--paper);padding:17px;box-shadow:var(--shadow)}.boxtitle{font-size:12px;font-weight:770;margin-bottom:13px}.growth{font-size:10px;font-weight:720}.growup{color:var(--mint)}.growdown{color:var(--red)}.barrow{display:grid;grid-template-columns:90px minmax(30px,1fr) 92px;gap:9px;align-items:center;margin:0 0 13px}.barrow:last-child{margin-bottom:0}.barname{font-size:12px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bartrack{height:12px;border-radius:10px;background:#edf1f8;overflow:hidden}.barfill{height:100%;background:linear-gradient(90deg,#5573e5,#77b8ed);border-radius:10px}.barvalue{font-size:11px;font-weight:720;text-align:right;font-variant-numeric:tabular-nums}.barvalue small{font-weight:640}
+.takeaway{border-left:3px solid var(--blue);padding:3px 0 3px 11px;font-size:12px;color:#516683;background:#f9fbff;margin-top:14px}
+.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}th{text-align:left;color:var(--sub);font-size:11px;font-weight:700;padding:10px 8px;border-bottom:1px solid var(--line)}td{padding:11px 8px;border-bottom:1px solid #eef1f5}tr:last-child td{border-bottom:none}th:not(:first-child),td:not(:first-child){text-align:right}
+.websitegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.webname{font-size:13px;font-weight:800;margin-bottom:9px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.figure .label{font-size:10px;color:var(--sub)}.figure strong{font-size:20px;display:block}.webnote{font-size:11px;color:var(--sub);margin-top:13px}
+.contentgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.contentbox{border:1px solid var(--line);border-radius:12px;background:var(--paper);padding:15px;box-shadow:var(--shadow)}.contentbox strong{font-size:23px;display:block}.contentbox span{color:var(--sub);font-size:11px}
+.details{margin:17px 0 0;border:1px solid var(--line);border-radius:13px;background:var(--paper);overflow:hidden}.details summary{padding:14px 17px;cursor:pointer;font-weight:680;color:#3758bc;font-size:12px}.detailcontent{padding:0 17px 16px}.detailcontent h4{font-size:12px;margin:16px 0 8px}.detailcontent h4:first-child{margin-top:0}
+.blank{border:1px dashed #ccd7e6;border-radius:15px;background:#fff;text-align:center;padding:35px 20px;color:var(--sub)}.blank strong{display:block;font-size:18px;color:var(--ink);margin-bottom:8px}.blank p{font-size:12px;max-width:520px;margin:0 auto 15px}.link{color:#3658c7;text-decoration:none;font-weight:680;font-size:12px}
+.footer{font-size:11px;line-height:1.55;color:#75869f;border-top:1px solid #e2e7f0;padding-top:14px;margin-top:30px}
+@media(max-width:780px){.wrap{padding:16px 12px 26px}.top{align-items:flex-start}.two{grid-template-columns:1fr}.insights{grid-template-columns:1fr}.contentgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.periodinfo{margin-left:0}.hero h2{font-size:21px}}
+@media(max-width:510px){.brand h1{font-size:17px}.source{font-size:11px}.control{padding:13px}.control-top{gap:9px}.pick{flex:1 1 115px}.monthpicker{flex:1 1 135px}.arrows{order:3}.periodinfo{order:4}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpi{padding:13px}.kpi strong{font-size:25px}.websitegrid{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.barrow{grid-template-columns:80px minmax(35px,1fr) 83px}.barvalue{font-size:10px}}
+@media(prefers-reduced-motion:no-preference){button,select{transition:border-color .12s,background .12s}button:hover:not(:disabled){border-color:#9aace5}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+ <div class="brand"><div class="brandicon">▤</div><div><h1>Marketing Report</h1><div class="sub">Xem nhanh kết quả theo tháng và tuần</div></div></div>
+ <a class="source" href="https://app.notion.com/p/3faad5e565f981648ae6c7212f334606" target="_blank" rel="noopener noreferrer">Notion Database ↗</a>
+</header>
+<section class="control" aria-label="Chọn kỳ báo cáo">
+ <div class="control-top">
+  <label class="pick"><span>Năm</span><select id="year" aria-label="Chọn năm báo cáo"></select></label>
+  <label class="pick monthpicker"><span>Tháng</span><select id="month" aria-label="Chọn tháng báo cáo"></select></label>
+  <div class="arrows"><button class="iconbtn" id="prev" title="Tháng có dữ liệu trước" aria-label="Tháng trước">‹</button><button class="iconbtn" id="next" title="Tháng có dữ liệu tiếp theo" aria-label="Tháng tiếp theo">›</button></div>
+  <div class="periodinfo" id="periodinfo"></div>
+ </div>
+ <nav id="weeknav" class="weekbar" aria-label="Chọn tuần"></nav>
+</section>
+<section class="hero">
+ <div><h2 id="heading">September · Tổng quan</h2><div class="desc" id="description"></div></div>
+ <span id="dataState" class="status">Kỳ chưa xác định</span>
+</section>
+<div id="report"></div>
+<footer class="footer">Số liệu do người dùng cung cấp. Kỳ mẫu không xác định năm/ngày được tách riêng; không cộng với báo cáo 2026. Dữ liệu trong bản HTML đính kèm là snapshot; dữ liệu online cần được đồng bộ qua GitHub Actions từ Notion. Impressions, engagements, users và reach không được hiểu là Leads hoặc doanh thu nếu chưa có bằng chứng quy đổi.</footer>
+</div>
+<script id="report-data" type="application/json">{"schemaVersion":3,"months":[{"id":"2026-10","year":2026,"month":10,"name":"October","verification":"Monthly target/actual not supplied","report":null,"weeks":[{"id":"2026-W41-05-09","weekNumber":1,"name":"05–09 Oct 2026 · Partial","label":"05–09 Oct 2026 · Partial","report":{"label":"WEEKLY KPI REPORT","sublabel":"05–09 Oct 2026 · Partial · Token WhatsApp: 4 contacts passed to support, not Calendly calls.","kpis":[{"name":"Marketing Leads","target":4,"actual":4},{"name":"Calendly Calls","target":3,"actual":0},{"name":"Website Contact","target":1,"actual":0},{"name":"Warm / Qualified Lead","target":null,"actual":null}],"linkedin":[{"name":"Erik","type":"Personal","posts":2,"impressions":1021,"engagements":56,"reach":323,"imprChange":null,"engChange":null,"out":null},{"name":"Cris","type":"Personal","posts":2,"impressions":974,"engagements":44,"reach":399,"imprChange":-22,"engChange":13,"out":29},{"name":"Twendee Soft","type":"Brand","posts":null,"impressions":461,"imprChange":95.3,"engagements":17,"engChange":70,"followers":1},{"name":"Twendee Labs","type":"Brand","posts":null,"impressions":500,"imprChange":26.9,"engagements":41,"engChange":125,"followers":2},{"name":"Agentee","type":"Brand","posts":null,"impressions":41,"imprChange":-66.9,"engagements":5,"engChange":-66.7,"followers":0}],"websites":[{"name":"Twendee Soft website","active":331,"new":323,"events":1500,"note":"Homepage 53.9%; portfolio 37.8%. Events ~1.5K, rounded."}],"medium":[{"name":"Medium TWD","presentations":235,"views":144,"blogs":4},{"name":"Medium TWD Labs","presentations":235,"views":144,"blogs":4}],"contents":[{"name":"Blog articles","count":10},{"name":"Newsletters","count":2}]}},{"id":"2026-W41","weekNumber":2,"name":"05–11 Oct 2026 · Full W41","label":"05–11 Oct 2026 · Full W41","report":{"label":"WEEKLY KPI REPORT","sublabel":"05–11 Oct 2026 · Full W41 · Existing overlapping full-week report; do not combine with 05–09 Oct.","kpis":[{"name":"Marketing Leads","target":4,"actual":3},{"name":"Calendly Calls","target":3,"actual":3},{"name":"Website Contact","target":null,"actual":0},{"name":"Warm / Qualified Lead","target":1,"actual":null}],"linkedin":[{"name":"Erik","type":"Personal","posts":2,"impressions":622,"engagements":25,"reach":263,"imprChange":20,"engChange":4,"out":null},{"name":"Cris","type":"Personal","posts":2,"impressions":444,"engagements":17,"reach":152,"imprChange":-38,"engChange":-63,"out":null},{"name":"Twendee Soft","type":"Brand","posts":null,"impressions":676,"imprChange":45.1,"engagements":23,"engChange":-53.2,"followers":2},{"name":"Twendee Labs","type":"Brand","posts":null,"impressions":188,"imprChange":95.8,"engagements":11,"engChange":-15.4,"followers":1},{"name":"Agentee","type":"Brand","posts":null,"impressions":73,"imprChange":265,"engagements":2,"engChange":18.8,"followers":1}],"websites":[{"name":"Twendee Soft website","active":313,"new":307,"events":null,"note":""},{"name":"Twendee Labs website","active":173,"new":172,"events":null,"note":""}],"medium":[],"contents":[{"name":"Blog articles","count":6},{"name":"Newsletters","count":2},{"name":"Service page","count":1},{"name":"Sales one-pagers","count":2},{"name":"Case studies","count":2}]}}]},{"id":"2026-09","year":2026,"month":9,"name":"September","verification":"Verified","weeks":[],"report":{"label":"SEPTEMBER REPORT","sublabel":"September 2026 · Monthly official totals from Twendee Notion","kpis":[{"name":"Marketing Leads","target":15,"actual":16},{"name":"Calendly Calls","target":10,"actual":16},{"name":"Website Contact","target":2,"actual":0}],"linkedin":[{"name":"Erik","type":"Personal","posts":10,"impressions":3038,"imprChange":35,"engagements":150,"engChange":50,"reach":918,"out":33},{"name":"Cris","type":"Personal","posts":14,"impressions":4026,"imprChange":32,"engagements":118,"engChange":20,"reach":1150,"out":34},{"name":"TWD Soft","type":"Brand","posts":null,"impressions":1713,"imprChange":35,"engagements":65,"engChange":-2,"reach":604,"reachType":"Organic","followers":9},{"name":"TWD Labs","type":"Brand","posts":null,"impressions":1530,"imprChange":38.5,"engagements":59,"engChange":2,"reach":670,"reachType":"Organic","followers":1},{"name":"Agentee","type":"Brand","posts":null,"impressions":886,"imprChange":38,"engagements":24,"engChange":-63.1,"reach":78,"reachType":"Organic","followers":3}],"websites":[{"name":"TWD Soft","active":972,"newUsers":963,"organic":124,"events":"4.9K","locations":"Singapore 227 · Hanoi 99"},{"name":"TWD Labs","active":531,"newUsers":530,"organic":26,"events":"1.9K","locations":"Singapore 415 · Ashburn 25"}],"medium":[{"name":"Medium TWD","presentations":617,"views":366},{"name":"Medium TWD Labs","presentations":452,"views":317}],"contents":[{"name":"Blog articles","count":40},{"name":"Newsletters","count":8},{"name":"CandiVision landing page","count":1},{"name":"Brochure","count":1},{"name":"Name card","count":1},{"name":"Sales paper","count":1}]}},{"id":"sample-september-undated","year":null,"month":9,"name":"September · ZIP sample","verification":"Năm chưa xác định","report":{"label":"SEPTEMBER REPORT","sublabel":"Báo cáo tháng chính thức · chưa xác nhận năm","kpis":[{"name":"Marketing Leads","target":15,"actual":16},{"name":"Calendly Calls","target":10,"actual":16},{"name":"Website Contact","target":2,"actual":0}],"linkedin":[{"name":"Erik","type":"Personal","posts":10,"impressions":3038,"imprChange":35,"engagements":150,"engChange":50,"reach":918,"out":33},{"name":"Cris","type":"Personal","posts":14,"impressions":4026,"imprChange":32,"engagements":118,"engChange":20,"reach":1150,"out":34},{"name":"TWD Soft","type":"Brand","posts":null,"impressions":1713,"imprChange":35,"engagements":65,"engChange":-2,"reach":604,"reachType":"Organic","followers":9},{"name":"TWD Labs","type":"Brand","posts":null,"impressions":1530,"imprChange":38.5,"engagements":59,"engChange":2,"reach":670,"reachType":"Organic","followers":1},{"name":"Agentee","type":"Brand","posts":null,"impressions":886,"imprChange":38,"engagements":24,"engChange":-63.1,"reach":78,"reachType":"Organic","followers":3}],"websites":[{"name":"TWD Soft","active":972,"newUsers":963,"organic":124,"events":"4.9K","locations":"Singapore 227 · Hanoi 99"},{"name":"TWD Labs","active":531,"newUsers":530,"organic":26,"events":"1.9K","locations":"Singapore 415 · Ashburn 25"}],"medium":[{"name":"Medium TWD","presentations":617,"views":366},{"name":"Medium TWD Labs","presentations":452,"views":317}],"contents":[{"name":"Blog articles","count":40},{"name":"Newsletters","count":8},{"name":"CandiVision landing page","count":1},{"name":"Brochure","count":null},{"name":"Name card","count":null},{"name":"Sales paper","count":1}]},"weeks":[]}],"unassignedWeeks":[{"id":"sample-week-undated","name":"Báo cáo tuần mẫu","report":{"label":"WEEKLY KPI REPORT","sublabel":"Tuần mẫu · chưa xác định ngày và tháng","kpis":[{"name":"Marketing Leads","target":4,"actual":9},{"name":"Calendly Calls","target":3,"actual":9},{"name":"Website Contact","target":null,"actual":0},{"name":"Warm / Qualified Lead","target":1,"actual":null}],"linkedin":[{"name":"Erik","type":"Personal","posts":2,"postTarget":2,"impressions":797,"imprChange":30,"engagements":58,"engChange":107,"reach":349},{"name":"Cris","type":"Personal","posts":2,"postTarget":2,"impressions":1369,"imprChange":39,"engagements":52,"engChange":160,"reach":501},{"name":"TWD Soft","type":"Brand","posts":2,"impressions":188,"imprChange":46.1,"engagements":16,"engChange":15.4,"followers":4,"followerChange":33.3},{"name":"TWD Labs","type":"Brand","posts":2,"impressions":691,"imprChange":265.6,"engagements":27,"engChange":15.4,"followers":1},{"name":"Agentee","type":"Brand","posts":1,"impressions":392,"imprChange":21.4,"engagements":13,"engChange":116.7,"followers":1}],"websites":[{"name":"TWD Soft","active":168,"newUsers":161,"organic":null,"events":"831","locations":null},{"name":"TWD Labs","active":98,"newUsers":96,"organic":null,"events":"350","locations":null}],"medium":[],"contents":[{"name":"Blog articles","count":16},{"name":"Newsletters","count":2}]},"date":null,"relatedMonth":null}]}</script>
 <script>
-'use strict';
-const BASELINE = []; // No private metrics are embedded in published HTML.
-const NOTION_DB = 'https://app.notion.com/p/6fc8d546d32a485b9ed4e0f43102259d';
-const $=id=>document.getElementById(id);
-const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const number=v=>typeof v==='number'&&Number.isFinite(v)?new Intl.NumberFormat('en-US').format(v):'—';
-const val=v=>v===null||v===undefined||v===''?null:Number(v);
-const delta=v=>v===null||v===undefined||v===''?'':(Number(v)>=0?'+':'')+Number(v).toLocaleString('en-US',{maximumFractionDigits:1})+'%';
-let records=BASELINE.map(x=>({...x})),activePeriod=null,source='Notion baseline snapshot';
-function status(msg,isError=false){$('status').textContent=msg;$('status').classList.toggle('error',isError)}
-function emptyMetric(){return {Actual:null,Target:null,'Change %':null}}
-function selectedRecords(){return records.filter(x=>x['Reporting Period']===activePeriod)}
-function get(section,account,metric){return selectedRecords().find(r=>r.Section===section&&r.Account===account&&r.Metric===metric)||emptyMetric()}
-function fmtMetric(section,account,metric){const v=get(section,account,metric).Actual;return /^\d{4}-\d{2}$/.test(activePeriod||'')&&metric==='Event count'&&typeof v==='number'&&v>=1000?(v/1000).toLocaleString('en-US',{maximumFractionDigits:1})+'K':number(v)}
-function metricCell(section,account,metric){const row=get(section,account,metric);return `<span class="cell-value">${number(row.Actual)}</span>${row['Change %']!==null&&row['Change %']!==undefined?` <span class="cell-delta">${escapeHtml(delta(row['Change %']))}</span>`:''}`}
-function periods(){const order=p=>{const start=records.find(r=>r['Reporting Period']===p&&r['Week Start'])?.['Week Start'];const t=start?Date.parse(start):NaN;return Number.isFinite(t)?t:0};return [...new Set(records.map(r=>r['Reporting Period']).filter(Boolean))].sort((a,b)=>order(b)-order(a)||a.localeCompare(b))}
-function displayPeriods(preferred){
- const periodsArr=periods();const linkPeriod=new URLSearchParams(location.search).get('period');activePeriod=periodsArr.includes(preferred)?preferred:periodsArr.includes(linkPeriod)?linkPeriod:periodsArr.find(x=>/^\d{4}-W\d{2}$/.test(x))||periodsArr[0]||null;
- $('periodSelect').innerHTML=periodsArr.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x==='2026-W41-05-09'?'05–09 Oct 2026 · Partial week':/^\d{4}-\d{2}$/.test(x)?x+' · Monthly':/^\d{4}-W\d{2}$/.test(x)?x+' · Weekly':x)}</option>`).join('');
- $('periodSelect').value=activePeriod||'';
+(function(){
+"use strict";
+
+var DB=JSON.parse(document.getElementById("report-data").textContent);
+function adaptNotionRecords(payload){
+ const rec=Array.isArray(payload?.records)?payload.records:[];
+ if(!rec.length)return;
+ const grouped=new Map();
+ for(const r of rec){const period=r['Reporting Period'];if(period){if(!grouped.has(period))grouped.set(period,[]);grouped.get(period).push(r)}}
+ const get=(rs,section,acct,metric)=>rs.find(r=>r.Section===section&&r.Account===acct&&r.Metric===metric)||{};
+ const numeric=v=>typeof v==="number"&&Number.isFinite(v)?v:null;
+ const val=(rs,s,a,m)=>numeric(get(rs,s,a,m).Actual);
+ const change=(rs,s,a,m)=>numeric(get(rs,s,a,m)['Change %']);
+ const k=(rs,name,metric)=>({name,target:numeric(get(rs,"Lead funnel","Marketing",metric).Target),actual:val(rs,"Lead funnel","Marketing",metric)});
+ const build=(period)=>{
+  const rs=grouped.get(period)||[];
+  const kpis=[["Marketing Leads","Marketing leads"],["Calendly Calls","Calendly calls"],["Website Contact","Website contact"],["Warm / Qualified Lead","Warm / qualified lead"]].filter(([,key])=>rs.some(r=>r.Section==="Lead funnel"&&r.Metric===key)).map(([name,key])=>k(rs,name,key));
+  const linkedin=[];
+  for(const [acct,type,section] of [["Erik","Personal","Personal branding"],["Cris","Personal","Personal branding"],["Twendee Soft","Brand","LinkedIn brand pages"],["Twendee Labs","Brand","LinkedIn brand pages"],["Agentee","Brand","LinkedIn brand pages"]]){
+   if(!rs.some(r=>r.Account===acct&&r.Section===section))continue;
+   linkedin.push({name:acct,type,posts:val(rs,section,acct,"Posts"),postTarget:numeric(get(rs,section,acct,"Posts").Target),impressions:val(rs,section,acct,"Impressions"),imprChange:change(rs,section,acct,"Impressions"),engagements:val(rs,section,acct,"Engagements"),engChange:change(rs,section,acct,"Engagements"),reach:val(rs,section,acct,"Members reached"),out:val(rs,section,acct,"Out-of-network reach %"),followers:val(rs,section,acct,"New followers")});
+  }
+  const websites=["Twendee Soft website","Twendee Labs website"].filter(a=>rs.some(r=>r.Account===a&&r.Section==="Website traffic")).map(a=>({name:a.replace(" website",""),active:val(rs,"Website traffic",a,"Active users"),newUsers:val(rs,"Website traffic",a,"New users"),organic:val(rs,"Website traffic",a,"Organic users"),events:(()=>{const q=val(rs,"Website traffic",a,"Event count");return q===null?null:q>=1000&&period==="2026-09"?(q/1000).toFixed(1)+"K":q>=1000&&period==="2026-W41-05-09"?"≈"+(q/1000).toFixed(1)+"K":String(q)})(),locations:rs.filter(r=>r.Account===a&&r.Section==="Website traffic"&&String(r.Metric).startsWith("Users from ")).map(r=>r.Metric.slice(11)+": "+r.Actual).join(" · ")||null}));
+  const medium=["Twendee Soft","Twendee Labs"].filter(a=>rs.some(r=>r.Account===a&&r.Section==="Other activities"&&String(r.Metric).startsWith("Medium "))).map(a=>({name:a==="Twendee Soft"?"Medium TWD":"Medium TWD Labs",presentations:val(rs,"Other activities",a,"Medium presentations"),views:val(rs,"Other activities",a,"Medium views")}));
+  const cont=rs.filter(r=>r.Section==="Other activities"&&r.Account==="Content").map(r=>({name:r.Metric==="Blogs published"?"Blog articles":r.Metric==="Newsletters sent"?"Newsletters":r.Metric,count:numeric(r.Actual)}));
+  return {label:/^\d{4}-\d{2}$/.test(period)?"MONTHLY MARKETING REPORT":"WEEKLY KPI REPORT",sublabel:period+" · Notion verified snapshot",kpis,linkedin,websites,medium,contents:cont};
+ };
+ const sep=DB.months.find(m=>m.id==="2026-09");if(sep&&grouped.has("2026-09"))sep.report=build("2026-09");
+ const oct=DB.months.find(m=>m.id==="2026-10");
+ if(oct){for(const w of oct.weeks||[]){if(grouped.has(w.id))w.report=build(w.id)}}
+ // The sample periods retain their ZIP source values and remain undated.
 }
-function render(){
- const leadDefs=[['Marketing leads','lead.marketing'],['Calendly calls','lead.calendly'],['Website contact','lead.website'],['Warm / qualified lead','lead.qualified']];
- $('funnel').innerHTML=leadDefs.map(([metric],i)=>{
-  const r=get('Lead funnel','Marketing',metric),hasTarget=typeof r.Target==='number'&&r.Target>0,hasActual=typeof r.Actual==='number';
-  const pct=hasActual&&hasTarget?r.Actual/r.Target*100:null;
-  const isWarning=(metric==='Website contact'&&r.Actual===0);
-  const big=pct!==null?Math.round(pct)+'%':hasActual?number(r.Actual):'N/A';
-  const subtitle=hasActual?(hasTarget?`${number(r.Actual)} actual / ${number(r.Target)} target`:`${number(r.Actual)} actual · target not set`):`Target ${r.Target??'—'} · actual pending`;
-  return `<div class="card kpi ${pct>=100?'good':isWarning?'bad':!hasActual?'pending':''}"><div class="label">${escapeHtml(metric)}</div><div class="big">${escapeHtml(big)}</div><div class="sub">${escapeHtml(subtitle)}</div><div class="rail"><div class="fill" style="width:${pct===null?0:Math.max(0,Math.min(pct,100))}%"></div></div></div>`
- }).join('');
- const people=['Erik','Cris'];
- $('personal').innerHTML=people.map(person=>{
-   const p=get('Personal branding',person,'Posts'),other=['Impressions','Members reached','Engagements'];
-   return `<div class="card person"><div class="person-header"><div class="avatar">${escapeHtml(person[0])}</div><div><h3>${escapeHtml(person)}</h3><small>${number(p.Actual)} posts${typeof p.Target==='number'?` / ${number(p.Target)} target`:''}</small></div></div>${other.map(metric=>{const r=get('Personal branding',person,metric);return `<div class="metricline"><span class="mlabel">${escapeHtml(metric)}</span><span class="mnum">${number(r.Actual)}</span><span class="delta ${r['Change %']===null||r['Change %']===undefined?'missing':''}">${escapeHtml(delta(r['Change %']))||'—'}</span></div>`}).join('')}</div>`
- }).join('');
- const personComplete=people.every(person=>{const p=get('Personal branding',person,'Posts');return typeof p.Actual==='number'&&typeof p.Target==='number'&&p.Actual>=p.Target});
- $('personalCaption').textContent=/^\d{4}-\d{2}$/.test(activePeriod||'')?'Monthly posts · no monthly target supplied':personComplete?'Posts target achieved for Erik & Cris':'Target status based on available data';
- $('brands').innerHTML=['Twendee Soft','Twendee Labs','Agentee'].map(a=>`<tr class="${a==='Twendee Labs'?'featured':''}"><td class="cell-main">${escapeHtml(a)}</td><td>${metricCell('LinkedIn brand pages',a,'Posts')}</td><td>${metricCell('LinkedIn brand pages',a,'Impressions')}</td><td>${metricCell('LinkedIn brand pages',a,'Engagements')}</td><td>${metricCell('LinkedIn brand pages',a,'New followers')}</td></tr>`).join('');
- $('websites').innerHTML=['Twendee Soft website','Twendee Labs website'].map(a=>`<div class="card site"><h3>${escapeHtml(a)}</h3>${['Active users','New users','Event count'].map(metric=>`<div class="site-line"><span>${escapeHtml(metric)}</span><strong>${fmtMetric('Website traffic',a,metric)}</strong></div>`).join('')}</div>`).join('');
- $('other').innerHTML=[['Blogs published','blogs published'],['Newsletters sent','newsletters sent']].map(([metric,label])=>`<div><strong>${fmtMetric('Other activities','Content',metric)}</strong><span>${label}</span></div>`).join('');
- const lead=get('Lead funnel','Marketing','Marketing leads'),calls=get('Lead funnel','Marketing','Calendly calls'),contact=get('Lead funnel','Marketing','Website contact'),qualified=get('Lead funnel','Marketing','Warm / qualified lead');
- const lb=typeof lead.Actual==='number'?number(lead.Actual):'—', cb=typeof calls.Actual==='number'?number(calls.Actual):'—';
- const labsGrowth=get('LinkedIn brand pages','Twendee Labs','Impressions')['Change %'];
- const insights=[
- ['Lead generation',`${lb} leads${lead.Target?` / target ${number(lead.Target)}`:''}; ${cb} Calendly calls${calls.Target?` / target ${number(calls.Target)}`:''}.`],
- ['Brand visibility',labsGrowth!=null?`Twendee Labs impressions changed ${delta(labsGrowth)} versus the prior period.`:'Review changes across personal and brand-page impressions.'],
- ['Reporting gaps',`${contact.Actual===0?'0 website contact submissions.':'Website contact: '+number(contact.Actual)+'.'} ${qualified.Actual===null?'Qualified leads actual is pending.':'Qualified leads: '+number(qualified.Actual)+'.'}`],
- ['Next focus','Track which channels and posts lead to Calendly bookings; review website lead capture.']
- ];
- $('insights').innerHTML=insights.map(([label,text],i)=>`<div class="insight-line ${i===3?'focus':''}"><b>${escapeHtml(label)}</b><p>${escapeHtml(text)}</p></div>`).join('');
- const isMonthly=/^\d{4}-\d{2}$/.test(activePeriod||'');
- // Append only additional Content deliverables inside the existing Other Activities card.
- const extraContent=isMonthly?selectedRecords().filter(r=>r.Section==='Other activities'&&r.Account==='Content'&&!['Blogs published','Newsletters sent'].includes(r.Metric)):[];
- if(extraContent.length){
-  const rows=extraContent.map(r=>{
-   const label=activePeriod==='2026-09'&&['Landing pages','Brochures'].includes(r.Metric)?r.Metric+' · CandiVision':r.Metric;
-   return `<div class="site-line"><span>${escapeHtml(label)}</span><strong>${typeof r.Actual==='number'?number(r.Actual):'Pending'}</strong></div>`;
-  }).join('');
-  $('other').innerHTML+=`<div class="fullwidth-extra"><div class="extra-header">Additional deliverables</div>${rows}</div>`;
- }
- $('sourceNote').textContent='Source: '+source+' · '+selectedRecords().length+' metric records';
-}
-function parseCSV(csv){
- const data=[];let current='',row=[],quoted=false;
- for(let i=0;i<csv.length;i++){const ch=csv[i];if(ch==='"'){if(quoted&&csv[i+1]==='"'){current+='"';i++}else quoted=!quoted}else if(ch===','&&!quoted){row.push(current);current=''}else if((ch==='\n'||ch==='\r')&&!quoted){if(ch==='\r'&&csv[i+1]==='\n')i++;row.push(current);current='';if(row.some(x=>x!==''))data.push(row);row=[]}else{current+=ch}}
- row.push(current);if(row.some(x=>x!==''))data.push(row);
- if(!data.length)throw Error('Empty CSV file.');
- const headers=data.shift().map((h)=>h.replace(/^\uFEFF/,'').trim());
- return data.map(cells=>Object.fromEntries(headers.map((h,i)=>[h,(cells[i]??'').trim()])));
-}
-function propValue(p){if(!p)return null;if(typeof p!=='object')return p;switch(p.type){case'title':case'rich_text':return(p[p.type]||[]).map(x=>x.plain_text??x.text?.content??'').join('');case'select':return p.select?.name??null;case'number':return p.number??null;case'date':return p.date?.start??null;default:return p.name??p.plain_text??null}}
-function fromNotionResponse(items){return items.map(page=>{const props=page.properties||{};return Object.fromEntries(Object.entries(props).map(([k,v])=>[k,propValue(v)]))})}
-function normalize(raw){
- const arr=Array.isArray(raw)?raw:Array.isArray(raw?.records)?raw.records:Array.isArray(raw?.results)?fromNotionResponse(raw.results):Array.isArray(raw?.data)?raw.data:null;
- if(!arr)throw Error('Expected an array of records, {records:[…]}, or Notion query results.');
- const rows=arr.map((r,i)=>{
-   const str=k=>String(r[k]??'').trim();
-   const n=k=>{const x=r[k];if(x===null||x===undefined||String(x).trim()==='')return null;const cleaned=String(x).replace(/,/g,'').replace(/%/g,'').replace(/^\+/,'');const v=Number(cleaned);return Number.isFinite(v)?v:null};
-   return {'Metric ID':str('Metric ID'),'Reporting Period':str('Reporting Period')||str('Period'),'Week Start':str('Week Start'),'Section':str('Section'),'Account':str('Account'),'Metric':str('Metric'),'Actual':n('Actual'),'Target':n('Target'),'Change %':n('Change %'),'Data Status':str('Data Status'),'Sort Order':n('Sort Order')??i+1,'Notes':str('Notes')}
- }).filter(r=>r['Reporting Period']&&r.Section&&r.Account&&r.Metric);
- if(!rows.length)throw Error('Missing columns: Reporting Period, Section, Account, Metric. Export the database CSV from Notion.');
- const seen=new Set();for(const r of rows){const unique=[r['Reporting Period'],r.Section,r.Account,r.Metric].join('::');if(seen.has(unique))throw Error('Duplicate metric in the same reporting period: '+unique);seen.add(unique)}
- return rows.sort((a,b)=>a['Sort Order']-b['Sort Order']);
-}
-function loadData(payload,description){const next=normalize(payload);records=next;source=description;displayPeriods(activePeriod);render();status(`Loaded ${next.length} metrics from ${description}.`)}
-$('periodSelect').addEventListener('change',e=>{activePeriod=e.target.value;const url=new URL(location.href);url.searchParams.set('period',activePeriod);history.replaceState(null,'',url);render()});
-$('importBtn').addEventListener('click',()=>$('fileInput').click());
-$('fileInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{const raw=await f.text();loadData(f.name.toLowerCase().endsWith('.json')?JSON.parse(raw):parseCSV(raw),`file: ${f.name}`)}catch(err){status(err.message,true)}finally{e.target.value=''}});
-$('syncToggle').addEventListener('click',()=>{$('syncPanel').classList.toggle('open')});
-$('syncBtn').addEventListener('click',async()=>{
- const url=$('apiUrl').value.trim(),key=$('apiKey').value;
- if(!url.startsWith('https://'))return status('Enter an HTTPS URL to a secure proxy; not your Notion API token.',true);
- const button=$('syncBtn');button.disabled=true;button.textContent='Syncing…';
- try{const headers={Accept:'application/json'};if(key)headers['X-Dashboard-Key']=key;
- const res=await fetch(url,{headers,cache:'no-store'});if(!res.ok)throw Error(`API request failed (${res.status}).`);
- const payload=await res.json();loadData(payload,'secured Notion API sync');
- }catch(err){status(`${err.message} Check CORS and the server-side integration.`,true)}finally{button.disabled=false;button.textContent='Sync now'}
-});
-$('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(records,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='twendee-kpi-records.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
-$('printBtn').addEventListener('click',()=>window.print());
-displayPeriods();render();status(`Checking published Notion KPI snapshot…`);
-(async()=>{
+async function loadPublishedKpis(){
  try{
-  const res=await fetch('./data/kpi.json?v='+Date.now(),{cache:'no-store'});
-  if(!res.ok)throw Error(`HTTP ${res.status}`);
-  const json=await res.json();
-  loadData(json,'GitHub Pages · Notion sync');
-  const t=json.updatedAt?new Date(json.updatedAt).toLocaleString():null;
-  if(t)status('Notion data last synced: '+t+' · '+records.length+' KPI records.');
- }catch(e){status('No published KPI snapshot yet. Import CSV for a local preview, or configure the private Notion sync. Details: '+e.message,true)}
+  const response=await fetch("./data/kpi.json?v="+Date.now(),{cache:"no-store"});
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  const data=await response.json();
+  adaptNotionRecords(data);
+  render();
+  var pill=document.getElementById("periodinfo");
+  if(pill)pill.textContent=String(data.records?.length||0)+" KPI · "+String(data.weeks?.length||0)+" kỳ · Notion sync";
+ }catch(e){
+  var pill=document.getElementById("periodinfo");
+  if(pill)pill.textContent="Dữ liệu mẫu đã lưu · "+e.message;
+ }
+}
+
+var MONTH_NAMES=["January","February","March","April","May","June","July","August","September","October","November","December"];
+var WEB={weekly:"https://app.notion.com/p/f683ff763b334e9799b2b049785d8a6a",monthly:"https://app.notion.com/p/d7cdeaf9c38f4befb55d03f3601039c2"};
+var S={yearKey:"unknown",monthId:null,kind:"month",weekNumber:null,unassignedId:null};
+var $=function(id){return document.getElementById(id)};
+var n=function(x){return x==null?"—":Number(x).toLocaleString("en-US")};
+var pct=function(x){return x==null?"—":(x>0?"+":"")+x+"%"};
+var rate=function(k){return k.actual==null||k.target==null||k.target===0?null:Math.round(k.actual/k.target*1000)/10};
+var normalYear=function(y){return y==null?"unknown":String(y)};
+var years=function(){var unique=[...new Set(DB.months.map(function(p){return normalYear(p.year)}))];return unique.sort(function(a,b){if(a==="unknown")return 1;if(b==="unknown")return -1;return Number(b)-Number(a)})};
+var allSorted=function(){return DB.months.slice().sort(function(a,b){return (a.year||0)-(b.year||0)||a.month-b.month})};
+var byYear=function(y){return DB.months.filter(function(p){return normalYear(p.year)===y}).sort(function(a,b){return a.month-b.month})};
+function currentMonth(){return DB.months.find(function(x){return x.id===S.monthId})||DB.months[0]}
+function currentWeek(){return (currentMonth()?.weeks||[]).find(function(w){return w.weekNumber===S.weekNumber})}
+function reportData(){if(S.kind==="unassigned")return DB.unassignedWeeks.find(function(w){return w.id===S.unassignedId})?.report||null;if(S.kind==="month")return currentMonth()?.report||null;return currentWeek()?.report||null}
+function chooseMonth(id){var m=DB.months.find(function(x){return x.id===id});if(!m)return;S.monthId=id;S.yearKey=normalYear(m.year);S.kind="month";S.weekNumber=null;S.unassignedId=null;render()}
+function chooseWeek(i){S.kind="week";S.weekNumber=i;S.unassignedId=null;render()}
+function chooseUnassigned(id){S.kind="unassigned";S.unassignedId=id;render()}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]})}
+function renderSelects(){
+ var ys=years();if(!ys.includes(S.yearKey))S.yearKey=ys[0]||"unknown";
+ $("year").innerHTML=ys.map(function(y){return '<option value="'+y+'">'+(y==="unknown"?"Chưa xác định":y)+'</option>'}).join("");$("year").value=S.yearKey;
+ var mm=byYear(S.yearKey);if(!mm.some(function(x){return x.id===S.monthId}))S.monthId=mm[0]?.id||null;
+ $("month").innerHTML=mm.map(function(x){return '<option value="'+escapeHtml(x.id)+'">'+escapeHtml(MONTH_NAMES[x.month-1]||x.name)+'</option>'}).join("");$("month").value=S.monthId||"";
+ $("month").disabled=mm.length===0;
+ var sorted=allSorted(),idx=sorted.findIndex(function(x){return x.id===S.monthId});
+ $("prev").disabled=idx<=0;$("next").disabled=idx<0||idx===sorted.length-1;
+ $("periodinfo").textContent=DB.months.length+" tháng báo cáo · "+DB.unassignedWeeks.length+" tuần chưa phân loại";
+ $("year").onchange=function(){S.yearKey=this.value;var first=byYear(S.yearKey)[0];if(first)chooseMonth(first.id)};
+ $("month").onchange=function(){chooseMonth(this.value)};
+ $("prev").onclick=function(){var row=sorted[idx-1];if(row)chooseMonth(row.id)};
+ $("next").onclick=function(){var row=sorted[idx+1];if(row)chooseMonth(row.id)}
+}
+function renderWeeks(){
+ var current=currentMonth(),known=current?.weeks||[],available=known.map(function(x){return x.weekNumber});
+ var chips=['<button type="button" class="weekbtn '+(S.kind==="month"?"active":"")+'" data-view="month">Tổng quan tháng</button>'];
+ var slots=Math.max(5,...available,0);
+ for(var i=1;i<=slots;i++){
+ var has=available.indexOf(i)>=0;
+ chips.push('<button type="button" data-week="'+i+'" class="weekbtn '+(S.kind==="week"&&S.weekNumber===i?"active":"")+'" title="'+(has?"Có báo cáo":"Chưa có dữ liệu tuần")+'">Tuần '+i+(has?' <span class="count">●</span>':' <span class="count">—</span>')+'</button>');
+ }
+ if(DB.unassignedWeeks.length){chips.push('<span class="sep"></span>');DB.unassignedWeeks.forEach(function(w,j){chips.push('<button type="button" data-unassigned="'+escapeHtml(w.id)+'" class="weekbtn unassigned '+(S.kind==="unassigned"&&S.unassignedId===w.id?"active":"")+'">'+(DB.unassignedWeeks.length===1?"Tuần chưa xác định":"Tuần chưa rõ "+(j+1))+'</button>')})}
+ $("weeknav").innerHTML=chips.join("");
+ $("weeknav").querySelectorAll("[data-view]").forEach(function(x){x.onclick=function(){S.kind="month";S.weekNumber=null;S.unassignedId=null;render()}});
+ $("weeknav").querySelectorAll("[data-week]").forEach(function(x){x.onclick=function(){chooseWeek(Number(x.dataset.week))}});
+ $("weeknav").querySelectorAll("[data-unassigned]").forEach(function(x){x.onclick=function(){chooseUnassigned(x.dataset.unassigned)}});
+}
+function titleHeader(){
+ var m=currentMonth(),span=(m?MONTH_NAMES[m.month-1]:"Không rõ tháng"),y=m?.year||"chưa rõ năm";
+ if(S.kind==="month"){$("heading").textContent=span+" · Tổng quan tháng";$("description").textContent="Đánh giá Marketing theo kết quả KPI, chỉ số đáng chú ý và hoạt động từng kênh."; $("dataState").textContent=m?.year?"Báo cáo "+y:"Năm chưa xác định"}
+ if(S.kind==="week"){$("heading").textContent=span+" · Tuần "+S.weekNumber;$("description").textContent="Kết quả chi tiết tuần, liên kết với báo cáo tháng đã chọn.";$("dataState").textContent=currentWeek()?"Đã có báo cáo":"Chưa có số liệu"}
+ if(S.kind==="unassigned"){$("heading").textContent="Báo cáo tuần mẫu";$("description").textContent="Tuần này chưa có ngày bắt đầu/kết thúc, nên chưa được gắn vào tháng cụ thể.";$("dataState").textContent="Chưa xác nhận kỳ"}
+}
+function scorecard(k){var r=rate(k),cls=r==null?"neutral":r>=100?"positive":"negative",width=Math.max(0,Math.min(100,r||0));return '<article class="kpi"><div class="name">'+escapeHtml(k.name)+'</div><div class="numbers"><strong>'+n(k.actual)+'</strong><span class="goal">/ '+n(k.target)+'</span></div><div class="measure '+cls+'">'+(r==null?"Chưa đủ mục tiêu / kết quả":r+"% mục tiêu")+'</div><div class="bar"><div class="'+(r!=null&&r<100?"negative":"")+'" style="width:'+width+'%"></div></div></article>'}
+function insights(d){
+ var items=[],kpis=d.kpis||[],above=kpis.filter(function(k){return rate(k)>=100}),below=kpis.filter(function(k){return rate(k)!=null&&rate(k)<100}),missing=kpis.filter(function(k){return k.actual==null||k.target==null});
+ if(above.length){var best=above.slice().sort(function(a,b){return rate(b)-rate(a)})[0];items.push({type:"green",name:"Đang vượt mục tiêu",message:best.name+" đạt "+n(best.actual)+"/"+n(best.target)+" ("+rate(best)+"%)."+(above.length>1?" Có "+above.length+" KPI đạt hoặc vượt mục tiêu.":"")})}
+ if(below.length){var worst=below.slice().sort(function(a,b){return rate(a)-rate(b)})[0];items.push({type:"red",name:"Cần chú ý",message:worst.name+" mới đạt "+n(worst.actual)+"/"+n(worst.target)+" ("+rate(worst)+"%). Cần kiểm tra nguyên nhân."})}
+ var diverge=(d.linkedin||[]).filter(function(r){return r.imprChange>0&&r.engChange<0}).sort(function(a,b){return a.engChange-b.engChange})[0];
+ if(diverge){items.push({type:"amber",name:"Chỉ số trái chiều",message:diverge.name+" tăng "+pct(diverge.imprChange)+" impressions, nhưng "+pct(diverge.engChange)+" engagements. Nên xem lại chất lượng tương tác."})}
+ if(missing.length){items.push({type:"amber",name:"Thiếu dữ liệu",message:missing.map(function(k){return k.name}).join(", ")+": chưa đủ target hoặc actual để đánh giá."})}
+ var personal=(d.linkedin||[]).filter(function(r){return r.postTarget!=null});
+ if(personal.length&&personal.every(function(r){return r.posts>=r.postTarget})){items.push({type:"blue",name:"Tiến độ nội dung",message:personal.map(function(r){return r.name+" "+r.posts+"/"+r.postTarget+" posts"}).join(" · ")+". Các cá nhân đều đạt chỉ tiêu bài đăng."})}
+ if(!items.length){items.push({type:"blue",name:"Chưa có đánh giá",message:"Cần thêm mục tiêu hoặc số liệu kỳ trước để đánh giá xu hướng."})}
+ return '<section class="section"><div class="sectionhead"><h3>02 · Điều gì đáng chú ý?</h3><span class="hint">Tóm tắt để đọc nhanh</span></div><div class="insights">'+items.slice(0,3).map(function(x){return '<article class="insight '+x.type+'"><div class="head">'+(x.type==="green"?"↗":x.type==="red"?"!":x.type==="amber"?"↕":"✓")+' '+escapeHtml(x.name)+'</div><div class="body">'+escapeHtml(x.message)+'</div></article>'}).join("")+'</div></section>'
+}
+function changeLabel(x){if(x==null)return '<span class="neutral">—</span>';return '<span class="growth '+(x>=0?"growup":"growdown")+'">'+pct(x)+'</span>'}
+function channels(d){
+ var rows=d.linkedin||[],mx=Math.max(1,...rows.map(function(x){return x.impressions||0})),top=rows.slice().sort(function(a,b){return(b.impressions||0)-(a.impressions||0)})[0];
+ var chart='<div class="box"><div class="boxtitle">LinkedIn · Impressions</div>'+rows.map(function(r){return '<div class="barrow"><span class="barname">'+escapeHtml(r.name)+'</span><div class="bartrack"><div class="barfill" style="width:'+((r.impressions||0)/mx*100)+'%"></div></div><div class="barvalue">'+n(r.impressions)+'<br><small>'+changeLabel(r.imprChange)+'</small></div></div>'}).join("")+'<div class="takeaway">'+(top?escapeHtml(top.name)+" có nhiều impressions nhất trong kỳ này.":"Chưa có impressions.")+'</div></div>';
+ var eng='<div class="box"><div class="boxtitle">Engagements · Biến động</div><div class="tablewrap"><table><thead><tr><th>Account</th><th>Eng.</th><th>Thay đổi</th></tr></thead><tbody>'+rows.map(function(r){return '<tr><td>'+escapeHtml(r.name)+'</td><td>'+n(r.engagements)+'</td><td>'+changeLabel(r.engChange)+'</td></tr>'}).join("")+'</tbody></table></div></div>';
+ var website='<div class="section"><div class="sectionhead"><h3>Website traffic</h3><span class="hint">Website Analytics</span></div><div class="websitegrid">'+(d.websites||[]).map(function(x){return '<article class="box"><div class="webname">'+escapeHtml(x.name)+'</div><div class="three"><div class="figure"><div class="label">Active users</div><strong>'+n(x.active)+'</strong></div><div class="figure"><div class="label">New users</div><strong>'+n(x.newUsers)+'</strong></div><div class="figure"><div class="label">Events</div><strong>'+escapeHtml(x.events)+'</strong></div></div><div class="webnote">'+(x.organic==null?"Organic users: chưa có":n(x.organic)+" organic users")+(x.locations?" · "+escapeHtml(x.locations):"")+'</div></article>'}).join("")+'</div></div>';
+ return '<section class="section"><div class="sectionhead"><h3>03 · Kênh nào hoạt động tốt?</h3><span class="hint">So sánh trong cùng kỳ</span></div><div class="two">'+chart+eng+'</div></section>'+website
+}
+function content(d){
+ var items=d.contents||[],core=items.filter(function(x){return /blog|newsletter/i.test(x.name)}),extra=items.filter(function(x){return !/blog|newsletter/i.test(x.name)});
+ return '<section class="section"><div class="sectionhead"><h3>04 · Đã sản xuất những gì?</h3><span class="hint">Content Output</span></div><div class="contentgrid">'+core.map(function(x){return '<article class="contentbox"><strong>'+n(x.count)+'</strong><span>'+escapeHtml(x.name)+'</span></article>'}).join("")+extra.slice(0,2).map(function(x){return '<article class="contentbox"><strong>'+n(x.count)+'</strong><span>'+escapeHtml(x.name)+'</span></article>'}).join("")+'</div>'+(extra.length>2?'<div class="hint" style="margin-top:8px">Có '+(extra.length-2)+' loại tài sản marketing khác trong bảng chi tiết.</div>':'')+'</section>'
+}
+function details(d){
+ var li=d.linkedin||[],med=d.medium||[],out=d.contents||[];
+ return '<details class="details"><summary>Xem bảng số liệu đầy đủ</summary><div class="detailcontent"><h4>Marketing KPIs</h4><div class="tablewrap"><table><thead><tr><th>KPI</th><th>Target</th><th>Actual</th><th>Achievement</th></tr></thead><tbody>'+d.kpis.map(function(k){var r=rate(k);return '<tr><td>'+escapeHtml(k.name)+'</td><td>'+n(k.target)+'</td><td>'+n(k.actual)+'</td><td>'+(r==null?"—":r+"%")+'</td></tr>'}).join("")+'</tbody></table></div><h4>LinkedIn</h4><div class="tablewrap"><table><thead><tr><th>Account</th><th>Posts</th><th>Impr.</th><th>Eng.</th><th>Reach</th><th>Followers+</th></tr></thead><tbody>'+li.map(function(x){return '<tr><td>'+escapeHtml(x.name)+'</td><td>'+n(x.posts)+'</td><td>'+n(x.impressions)+'</td><td>'+n(x.engagements)+'</td><td>'+n(x.reach)+'</td><td>'+n(x.followers)+'</td></tr>'}).join("")+'</tbody></table></div>'+(med.length?'<h4>Medium</h4><div class="tablewrap"><table><thead><tr><th>Publication</th><th>Presentations</th><th>Views</th></tr></thead><tbody>'+med.map(function(x){return '<tr><td>'+escapeHtml(x.name)+'</td><td>'+n(x.presentations)+'</td><td>'+n(x.views)+'</td></tr>'}).join("")+'</tbody></table></div>':'')+'<h4>Content Production</h4><div class="tablewrap"><table><thead><tr><th>Deliverable</th><th>Quantity</th></tr></thead><tbody>'+out.map(function(x){return '<tr><td>'+escapeHtml(x.name)+'</td><td>'+n(x.count)+'</td></tr>'}).join("")+'</tbody></table></div><div class="hint">Dấu —: dữ liệu chưa được cung cấp, không phải số 0.</div></div></details>'
+}
+function emptyState(){
+ var p=S.kind==="week",m=currentMonth(),label=p?"Tuần "+S.weekNumber:"Tháng "+(m?.name||"không rõ");
+ return '<div class="blank"><strong>'+escapeHtml(label)+' chưa có báo cáo</strong><p>'+(p?"Chưa có dữ liệu tuần được liên kết với tháng này. Có thể thêm một bản ghi Weekly Reports và liên kết Relation tới tháng để sử dụng về sau.":"Không có Monthly Report cho kỳ được chọn.")+'</p><a class="link" target="_blank" rel="noopener noreferrer" href="'+(p?WEB.weekly:WEB.monthly)+'">Mở database để bổ sung dữ liệu ↗</a></div>'
+}
+function renderReport(){
+ var d=reportData();
+ if(!d){$("report").innerHTML=emptyState();return}
+ var preface=S.kind==="month"?"Đây là số liệu tháng chính thức. Báo cáo tuần mẫu chưa có ngày nên không được cộng vào tháng này.":S.kind==="unassigned"?"Báo cáo tuần mẫu chưa có ngày, chưa xác định thuộc tháng nào. Mục tiêu Website Contact và actual Qualified Lead chưa đầy đủ.":"Chỉ số theo tuần đã được ghi nhận.";
+ $("report").innerHTML='<div class="explain">'+escapeHtml(preface)+'</div><section class="section"><div class="sectionhead"><h3>01 · Kết quả Marketing</h3><span class="hint">Actual / Target</span></div><div class="kpis">'+(d.kpis||[]).map(scorecard).join("")+'</div></section>'+insights(d)+channels(d)+content(d)+details(d)
+}
+function render(){renderSelects();renderWeeks();titleHeader();renderReport()}
+if(!DB.months.length){$("report").innerHTML=emptyState();return}
+S.monthId=DB.months[0].id;S.yearKey=normalYear(DB.months[0].year);render();loadPublishedKpis()
 })();
-</script></body></html>
+</script>
+</body>
+</html>
