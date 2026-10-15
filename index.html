@@ -133,7 +133,7 @@ function renderSelects(){
 function renderWeeks(){
  var current=currentMonth(),known=current?.weeks||[],available=known.map(function(x){return x.weekNumber});
  var chips=['<button type="button" class="weekbtn '+(S.kind==="month"?"active":"")+'" data-view="month">Monthly overview</button>'];
- var slots=Math.max(5,...available,0);
+ var slots=Math.max(4,...available,0);
  for(var i=1;i<=slots;i++){
  var has=available.indexOf(i)>=0;
  chips.push('<button type="button" data-week="'+i+'" class="weekbtn '+(S.kind==="week"&&S.weekNumber===i?"active":"")+'" title="'+(has?"Report available":"No weekly data")+'">Week '+i+(has?' <span class="count">●</span>':' <span class="count">—</span>')+'</button>');
