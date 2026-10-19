@@ -206,6 +206,18 @@ function scorecard(k){
  return '<article class="kpi"><div class="name">'+escapeHtml(k.name)+'</div><div class="numbers"><strong class="'+(!hasActual?'missing-value':'')+'">'+n(k.actual)+'</strong><span class="goal">/ '+n(k.target)+'</span></div><div class="measure '+(r==null?'pending':cls)+'">'+description+'</div><div class="bar'+(r==null?' missing':'')+'"><div class="'+(r!=null&&r<100?'negative':'')+'" style="width:'+width+'%"></div></div></article>';
 }
 function insights(d){
+ var k=d.kpis||[],social=d.linkedin||[],sites=d.websites||[];
+ var isW42=(d.sublabel||'').includes('W42')||(d.label||'').includes('W42');
+ if(isW42){
+  var rows=[
+   {symbol:'↗',label:'Lead quality & pipeline',description:'Marketing leads rose 33.3% WoW (3 to 4) and hit target; Calendly calls held at 3/3. Volume improved, but lead qualification and conversion cannot yet be assessed because qualified-lead actual is missing.'},
+   {symbol:'◈',label:'Brand & content effectiveness',description:'Twendee Labs impressions grew 33.0% (188 to 250) and Soft grew 7.5% (676 to 727); Agentee fell 63.0% (73 to 27). Erik engagements rose 20% (25 to 30) despite impressions declining 27.2%, suggesting stronger interaction per impression, not greater reach.'},
+   {symbol:'!',label:'Website & demand capture',description:'Twendee Soft active users declined 37.4% (313 to 196) while website contacts rose from 0 to 1. This is a positive inbound signal, not proof of improved conversion; check comparable date windows, traffic sources, contact attribution and form tracking.'},
+   {symbol:'→',label:'Manager priorities',description:'Qualify all four leads and attribute the three Calendly calls; diagnose website traffic decline; review Agentee content distribution. Put the refreshed AI company portfolio, Cadavision sales deck/demo video and Agentee use-case presentation into sales follow-up.',focus:true}
+  ];
+  return '<section class="section"><div class="sectionhead"><h3>02 · Key Insights</h3><span class="hint">Manager assessment · W42 vs W41 · directional, not causal</span></div><div class="insights" role="list">'+rows.map(function(r){return '<div class="insight-row'+(r.focus?' focus':'')+'" role="listitem"><div class="insight-label-wrap"><span class="insight-symbol" aria-hidden="true">'+escapeHtml(r.symbol)+'</span><div class="insight-label">'+escapeHtml(r.label)+'</div></div><div class="insight-description">'+escapeHtml(r.description)+'</div></div>'}).join('')+'</div></section>';
+ }
+
  var kpis=d.kpis||[], social=d.linkedin||[];
  var lead=kpis.find(function(k){return /marketing leads?/i.test(k.name)});
  var calls=kpis.find(function(k){return /calendly/i.test(k.name)});
@@ -240,6 +252,7 @@ function insights(d){
  ];
  return '<section class="section"><div class="sectionhead"><h3>02 · Key Insights</h3><span class="hint">Based on reported KPI data · no inferred conversions</span></div><div class="insights" role="list">'+rows.map(function(r){return '<div class="insight-row'+(r.focus?' focus':'')+'" role="listitem"><div class="insight-label-wrap"><span class="insight-symbol" aria-hidden="true">'+escapeHtml(r.symbol)+'</span><div class="insight-label">'+escapeHtml(r.label)+'</div></div><div class="insight-description">'+escapeHtml(r.description)+'</div></div>'}).join('')+'</div>'+(d.insightNotes&&d.insightNotes.context?'<p class="contextnote"><strong>Campaign context:</strong> '+escapeHtml(d.insightNotes.context)+'</p>':'')+'</section>'; 
 }
+
 function changeLabel(x){if(x==null)return '<span class="neutral">n/a</span>';return '<span class="growth '+(x>=0?"growup":"growdown")+'">'+pct(x)+'</span>'}
 function channels(d){
  var all=d.linkedin||[];
