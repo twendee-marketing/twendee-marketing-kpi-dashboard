@@ -169,7 +169,7 @@ function titleHeader(){
 }
 function changeBadge(x){if(x==null)return '<span class="trend-unknown" title="No comparison data reported">—</span>';return '<span class="delta '+(x>=0?'up':'down')+'">'+pct(x)+'</span>'}
 function thoughtValue(x){return x==null?'—':n(x)}
-function thoughtMetricRow(label,value,change){return '<div class="metricrow"><div class="mlabel">'+escapeHtml(label)+'</div><div class="mvalue">'+thoughtValue(value)+'</div>'+(label==='Members reached'?'':changeBadge(change))+'</div>'}
+function thoughtMetricRow(label,value,change){return '<div class="metricrow"><div class="mlabel">'+escapeHtml(label)+'</div><div class="mvalue">'+thoughtValue(value)+'</div>'+(label==='Members reached'?'<span class="delta-placeholder" aria-hidden="true"></span>':changeBadge(change))+'</div>'}
 function safePostLine(x){if(x.posts==null)return 'Posts not reported';return n(x.posts)+' posts'+(x.postTarget==null?'':' / '+n(x.postTarget)+' target')}
 function placeholderPerson(name){return {name:name,posts:null,postTarget:null,impressions:null,engagements:null,reach:null,imprChange:null,engChange:null}}
 const KPI_NAMES=['Marketing Leads','Calendly Calls','Website Contact','Warm / Qualified Lead'];
