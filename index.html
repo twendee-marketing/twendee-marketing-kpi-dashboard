@@ -111,7 +111,23 @@ var allSorted=function(){return DB.months.slice().sort(function(a,b){return (a.y
 var byYear=function(y){return DB.months.filter(function(p){return normalYear(p.year)===y}).sort(function(a,b){return a.month-b.month})};
 function currentMonth(){return DB.months.find(function(x){return x.id===S.monthId})||DB.months[0]}
 function currentWeek(){return (currentMonth()?.weeks||[]).find(function(w){return w.weekNumber===S.weekNumber})}
-function reportData(){if(S.kind==="unassigned")return DB.unassignedWeeks.find(function(w){return w.id===S.unassignedId})?.report||null;if(S.kind==="month")return currentMonth()?.report||null;return currentWeek()?.report||null}
+// W42 verified revisions: local snapshot fallback while Notion export is unavailable.
+function applyW42Corrections(d){
+ if(!d)return d;
+ const k=d.kpis||[];
+ const q=k.find(x=>/warm\s*\/\s*qualified/i.test(x.name));
+ if(q){q.actual=0;q.target=1;}
+ const updates={
+  'Erik':{posts:2,impressions:453,engagements:30,reach:180,imprChange:null,engChange:null},
+  'Cris':{posts:2,impressions:304,engagements:11,reach:103,imprChange:-71,engChange:-74},
+  'Twendee Soft':{posts:4,impressions:727,engagements:20,followers:4,imprChange:50.5,engChange:17.6},
+  'Twendee Labs':{posts:4,impressions:250,engagements:132,followers:0,imprChange:-54,engChange:59.3},
+  'Agentee':{posts:2,impressions:27,engagements:3,followers:0,imprChange:-34.1,engChange:3}
+ };
+ for(const entry of d.linkedin||[])if(updates[entry.name])Object.assign(entry,updates[entry.name]);
+ return d;
+}
+function reportData(){if(S.kind==="unassigned")return DB.unassignedWeeks.find(function(w){return w.id===S.unassignedId})?.report||null;if(S.kind==="month")return currentMonth()?.report||null;var w=currentWeek();var d=w?.report||null;return w?.id==='2026-W42'?applyW42Corrections(d):d}
 function chooseMonth(id){var m=DB.months.find(function(x){return x.id===id});if(!m)return;S.monthId=id;S.yearKey=normalYear(m.year);S.kind="month";S.weekNumber=null;S.unassignedId=null;render()}
 function chooseWeek(i){S.kind="week";S.weekNumber=i;S.unassignedId=null;render()}
 function chooseUnassigned(id){S.kind="unassigned";S.unassignedId=id;render()}
