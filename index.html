@@ -8,7 +8,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 button,select{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #86a5ff;outline-offset:3px}
 h1,h2,h3,p{margin-top:0}.wrap{max-width:1200px;padding:24px 24px 44px;margin:0 auto}
-.top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:19px}.brand{display:flex;align-items:center;gap:11px}.brandicon{background:#233e99;border-radius:12px;width:43px;height:43px;color:#fff;display:grid;place-items:center;font-size:24px}.brand h1{font-size:21px;letter-spacing:-.6px;margin:0}.sub{color:var(--sub);font-size:12px}.source{color:var(--blue);font-size:12px;font-weight:650;text-decoration:none}.source:hover{text-decoration:underline}
+.top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:19px}.brand{display:flex;align-items:center;gap:11px}.brandicon{background:#80ad58;border-radius:12px;width:43px;height:43px;color:#fff;display:grid;place-items:center;font-size:24px}.brand h1{font-size:21px;letter-spacing:-.6px;margin:0}.sub{color:var(--sub);font-size:12px}.source{color:var(--blue);font-size:12px;font-weight:650;text-decoration:none}.source:hover{text-decoration:underline}
 .control{border:1px solid var(--line);border-radius:17px;background:var(--paper);box-shadow:var(--shadow);padding:16px 18px;margin-bottom:15px}
 .control-top{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.pick{display:flex;flex-direction:column;gap:5px}.pick span{font-size:11px;font-weight:720;color:var(--sub)}select{min-width:130px;max-width:280px;padding:10px 35px 10px 11px;background:var(--paper);color:var(--ink);border:1px solid #dbe3f0;border-radius:10px;cursor:pointer;font-size:13px}
 .monthpicker{flex:1}.monthpicker select{width:100%;max-width:none}.arrows{display:flex;gap:5px;padding-bottom:0}.iconbtn{height:42px;width:42px;background:var(--paper);border:1px solid #dbe3f0;border-radius:10px;color:var(--ink)}.iconbtn:disabled{opacity:.35;cursor:not-allowed}
@@ -75,7 +75,7 @@ h1,h2,h3,p{margin-top:0}.wrap{max-width:1200px;padding:24px 24px 44px;margin:0 a
 <body>
 <div class="wrap">
 <header class="top">
- <div class="brand"><div class="brandicon">▤</div><div><h1>Marketing Report</h1><div class="sub">Monthly and weekly marketing performance</div></div></div>
+ <div class="brand"><div class="brandicon" aria-label="Twendee logo"><svg viewBox="0 0 100 100" width="35" height="35" role="img" aria-label="Twendee geometric mark"><path fill="#fff" d="M5 33 30 12 68 22 45 45ZM37 10 72 11 72 30 62 40 62 22ZM80 8 91 0 96 14 78 14ZM50 51 68 34 68 73 49 99 49 55Z"/></svg></div><div><h1>Marketing Report</h1><div class="sub">Monthly and weekly marketing performance</div></div></div>
  <a class="source" href="https://app.notion.com/p/3faad5e565f981648ae6c7212f334606" target="_blank" rel="noopener noreferrer">Notion Database ↗</a>
 </header>
 <section class="control" aria-label="Choose reporting period">
