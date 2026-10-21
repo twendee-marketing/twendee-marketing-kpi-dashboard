@@ -271,7 +271,9 @@ function content(d){
  var groups=completeContent(d.contents);
  var core=groups.core.map(function(r){return '<article class="contentbox"><strong>'+n(r.count)+'</strong><span>'+escapeHtml(r.name)+'</span></article>'}).join('');
  var extras=groups.extras;
- var other='<article class="contentbox other-card"><div class="boxtitle">Other activities</div>'+(extras.length?'<div class="other-grid">'+extras.map(function(r){return '<div class="other-item"><span>'+escapeHtml(r.name)+'</span><strong>'+n(r.count)+'</strong></div>'}).join('')+'</div>':'<div class="info-note">Additional activities were not reported for this period.</div>')+'</article>';
+ var deliverables=(S.kind==='week'&&S.weekId==='2026-W42')||S.kind==='week'&&S.weekNumber&&S.monthId==='2026-10'&&d.linkedin&&d.linkedin.some(function(x){return x.name==='Cris'&&x.impressions===304;});
+ var completed=deliverables?['Company portfolio updated with new AI case studies','Cadavision sales deck and demo video completed','Agentee use-case presentation completed']:[];
+ var other='<article class="contentbox other-card"><div class="boxtitle">Other activities</div>'+(completed.length?'<div class="other-grid">'+completed.map(function(name){return '<div class="other-item"><span>'+escapeHtml(name)+'</span><strong>Completed</strong></div>'}).join('')+'</div>':extras.length?'<div class="other-grid">'+extras.map(function(r){return '<div class="other-item"><span>'+escapeHtml(r.name)+'</span><strong>'+n(r.count)+'</strong></div>'}).join('')+'</div>':'<div class="info-note">Additional activities were not reported for this period.</div>')+'</article>';
  return mediumHtml+'<section class="section"><div class="sectionhead"><h3>07 · Content & Deliverables</h3><span class="hint">Reported content and other activities</span></div><div class="contentgrid">'+core+other+'</div></section>';
 }
 function details(d){
