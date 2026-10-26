@@ -265,7 +265,9 @@ function content(d){
  var groups=completeContent(d.contents);
  var core=groups.core.map(function(r){return '<article class="contentbox"><strong>'+n(r.count)+'</strong><span>'+escapeHtml(r.name)+'</span></article>'}).join('');
  var extras=groups.extras;
- var other='<article class="contentbox other-card"><div class="boxtitle">Other activities</div>'+(extras.length?'<div class="other-grid">'+extras.map(function(r){return '<div class="other-item"><span>'+escapeHtml(r.name)+'</span><strong>'+n(r.count)+'</strong></div>'}).join('')+'</div>':'<div class="info-note">Additional completed work is recorded in the Notion weekly report.</div>')+'</article>';
+ var activities=(d.deliverables||[]).map(function(x){return '<div class="other-item"><span>'+escapeHtml(x.name)+'</span><strong>'+escapeHtml(x.status||'Reported')+'</strong></div>'});
+ activities.push(...extras.map(function(r){return '<div class="other-item"><span>'+escapeHtml(r.name)+'</span><strong>'+n(r.count)+'</strong></div>'}));
+ var other='<article class="contentbox other-card"><div class="boxtitle">Other activities</div>'+(activities.length?'<div class="other-grid">'+activities.join('')+'</div>':'<div class="info-note">No additional activities reported.</div>')+'</article>';
 return mediumHtml+'<section class="section"><div class="sectionhead"><h3>07 · Content & Deliverables</h3><span class="hint">Reported content and other activities</span></div><div class="contentgrid">'+core+other+'</div></section>';
 }
 function details(d){
