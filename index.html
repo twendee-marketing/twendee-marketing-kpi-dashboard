@@ -125,7 +125,7 @@ function renderSelects(){
  $("month").disabled=mm.length===0;
  var sorted=allSorted(),idx=sorted.findIndex(function(x){return x.id===S.monthId});
  $("prev").disabled=idx<=0;$("next").disabled=idx<0||idx===sorted.length-1;
- $("periodinfo").textContent=DB.months.length+" reporting months · "+DB.unassignedWeeks.length+" unassigned weeks";
+ $("periodinfo").textContent=DB.months.length+" reporting months";
  $("year").onchange=function(){S.yearKey=this.value;var first=byYear(S.yearKey)[0];if(first)chooseMonth(first.id)};
  $("month").onchange=function(){chooseMonth(this.value)};
  $("prev").onclick=function(){var row=sorted[idx-1];if(row)chooseMonth(row.id)};
@@ -139,11 +139,9 @@ function renderWeeks(){
  var has=available.indexOf(i)>=0;
  chips.push('<button type="button" data-week="'+i+'" class="weekbtn '+(S.kind==="week"&&S.weekNumber===i?"active":"")+'" title="'+(has?"Report available":"No weekly data")+'">Week '+i+(has?' <span class="count">●</span>':' <span class="count">—</span>')+'</button>');
  }
- if(DB.unassignedWeeks.length){chips.push('<span class="sep"></span>');DB.unassignedWeeks.forEach(function(w,j){chips.push('<button type="button" data-unassigned="'+escapeHtml(w.id)+'" class="weekbtn unassigned '+(S.kind==="unassigned"&&S.unassignedId===w.id?"active":"")+'">'+(DB.unassignedWeeks.length===1?"Undated week":"Unassigned week "+(j+1))+'</button>')})}
  $("weeknav").innerHTML=chips.join("");
  $("weeknav").querySelectorAll("[data-view]").forEach(function(x){x.onclick=function(){S.kind="month";S.weekNumber=null;S.unassignedId=null;render()}});
  $("weeknav").querySelectorAll("[data-week]").forEach(function(x){x.onclick=function(){chooseWeek(Number(x.dataset.week))}});
- $("weeknav").querySelectorAll("[data-unassigned]").forEach(function(x){x.onclick=function(){chooseUnassigned(x.dataset.unassigned)}});
 }
 function titleHeader(){
  var m=currentMonth(),span=(m?MONTH_NAMES[m.month-1]:"Unknown month"),y=m?.year||"unconfirmed year";
