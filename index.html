@@ -112,23 +112,7 @@ var allSorted=function(){return DB.months.slice().sort(function(a,b){return (a.y
 var byYear=function(y){return DB.months.filter(function(p){return normalYear(p.year)===y}).sort(function(a,b){return a.month-b.month})};
 function currentMonth(){return DB.months.find(function(x){return x.id===S.monthId})||DB.months[0]}
 function currentWeek(){return (currentMonth()?.weeks||[]).find(function(w){return w.weekNumber===S.weekNumber})}
-// W42 verified revisions: local snapshot fallback while Notion export is unavailable.
-function applyW42Corrections(d){
- if(!d)return d;
- const k=d.kpis||[];
- const q=k.find(x=>/warm\s*\/\s*qualified/i.test(x.name));
- if(q){q.actual=0;q.target=1;}
- const updates={
-  'Erik':{posts:2,impressions:453,engagements:30,reach:180,imprChange:-27.2,engChange:20},
-  'Cris':{posts:2,impressions:304,engagements:11,reach:103,imprChange:-71,engChange:-74},
-  'Twendee Soft':{posts:4,impressions:727,engagements:20,followers:4,imprChange:50.5,engChange:17.6},
-  'Twendee Labs':{posts:4,impressions:250,engagements:132,followers:0,imprChange:-54,engChange:59.3},
-  'Agentee':{posts:2,impressions:27,engagements:3,followers:0,imprChange:-34.1,engChange:3}
- };
- for(const entry of d.linkedin||[])if(updates[entry.name])Object.assign(entry,updates[entry.name]);
- return d;
-}
-function reportData(){if(S.kind==="unassigned")return DB.unassignedWeeks.find(function(w){return w.id===S.unassignedId})?.report||null;if(S.kind==="month")return currentMonth()?.report||null;var w=currentWeek();var d=w?.report||null;return w?.id==='2026-W42'?applyW42Corrections(d):d}
+function reportData(){if(S.kind==="unassigned")return DB.unassignedWeeks.find(function(w){return w.id===S.unassignedId})?.report||null;if(S.kind==="month")return currentMonth()?.report||null;return currentWeek()?.report||null}
 function chooseMonth(id){var m=DB.months.find(function(x){return x.id===id});if(!m)return;S.monthId=id;S.yearKey=normalYear(m.year);S.kind="month";S.weekNumber=null;S.unassignedId=null;render()}
 function chooseWeek(i){S.kind="week";S.weekNumber=i;S.unassignedId=null;render()}
 function chooseUnassigned(id){S.kind="unassigned";S.unassignedId=id;render()}
@@ -152,8 +136,8 @@ function renderWeeks(){
  var chips=['<button type="button" class="weekbtn '+(S.kind==="month"?"active":"")+'" data-view="month">Monthly overview</button>'];
  var slots=Math.max(4,...available,0);
  for(var i=1;i<=slots;i++){
- var has=available.indexOf(i)>=0;
- chips.push('<button type="button" data-week="'+i+'" class="weekbtn '+(S.kind==="week"&&S.weekNumber===i?"active":"")+'" title="'+(has?"Report available":"No weekly data")+'">Week '+i+(has?' <span class="count">●</span>':' <span class="count">—</span>')+'</button>');
+ var has=available.indexOf(i)>=0, activeWeek=known.find(function(w){return w.weekNumber===i});
+ chips.push('<button type="button" data-week="'+i+'" class="weekbtn '+(S.kind==="week"&&S.weekNumber===i?"active":"")+'" title="'+(has?"Report available":"No weekly data")+'">'+(activeWeek?escapeHtml(activeWeek.id.replace(/^\d{4}-/,'')):'Week '+i)+(has?' <span class="count">●</span>':' <span class="count">—</span>')+'</button>');
  }
  if(DB.unassignedWeeks.length){chips.push('<span class="sep"></span>');DB.unassignedWeeks.forEach(function(w,j){chips.push('<button type="button" data-unassigned="'+escapeHtml(w.id)+'" class="weekbtn unassigned '+(S.kind==="unassigned"&&S.unassignedId===w.id?"active":"")+'">'+(DB.unassignedWeeks.length===1?"Undated week":"Unassigned week "+(j+1))+'</button>')})}
  $("weeknav").innerHTML=chips.join("");
@@ -164,7 +148,7 @@ function renderWeeks(){
 function titleHeader(){
  var m=currentMonth(),span=(m?MONTH_NAMES[m.month-1]:"Unknown month"),y=m?.year||"unconfirmed year";
  if(S.kind==="month"){$("heading").textContent=span+" · Monthly overview";$("description").textContent="Marketing KPIs, key takeaways, and channel performance for the selected month."; $("dataState").textContent=m?.year?"Report · "+y:"Year not confirmed"}
- if(S.kind==="week"){$("heading").textContent=span+" · Week "+S.weekNumber;$("description").textContent="Weekly results linked to the selected reporting month.";$("dataState").textContent=currentWeek()?"Report available":"No data available"}
+ if(S.kind==="week"){$("heading").textContent=span+" · "+(currentWeek()?.id||"Week "+S.weekNumber);$("description").textContent="Weekly results linked to the selected reporting month.";$("dataState").textContent=currentWeek()?"Report available":"No data available"}
  if(S.kind==="unassigned"){$("heading").textContent="Sample weekly report";$("description").textContent="This sample has no confirmed dates and is not assigned to a specific month.";$("dataState").textContent="Period not verified"}
 }
 function changeBadge(x){if(x==null)return '<span class="trend-unknown" title="No comparison data reported">—</span>';return '<span class="delta '+(x>=0?'up':'down')+'">'+pct(x)+'</span>'}
@@ -224,17 +208,6 @@ function scorecard(k){
 }
 function insights(d){
  var k=d.kpis||[],social=d.linkedin||[],sites=d.websites||[];
- var isW42=(d.sublabel||'').includes('W42')||(d.label||'').includes('W42');
- if(isW42){
-  var rows=[
-   {symbol:'↗',label:'Lead quality & pipeline',description:'Marketing leads rose 33.3% WoW (3 to 4) and hit target; Calendly calls held at 3/3. Volume improved, but lead qualification and conversion cannot yet be assessed because qualified-lead actual is missing.'},
-   {symbol:'◈',label:'Brand & content effectiveness',description:'Twendee Labs impressions grew 33.0% (188 to 250) and Soft grew 7.5% (676 to 727); Agentee fell 63.0% (73 to 27). Erik engagements rose 20% (25 to 30) despite impressions declining 27.2%, suggesting stronger interaction per impression, not greater reach.'},
-   {symbol:'!',label:'Website & demand capture',description:'Twendee Soft active users declined 37.4% (313 to 196) while website contacts rose from 0 to 1. This is a positive inbound signal, not proof of improved conversion; check comparable date windows, traffic sources, contact attribution and form tracking.'},
-   {symbol:'→',label:'Manager priorities',description:'Qualify all four leads and attribute the three Calendly calls; diagnose website traffic decline; review Agentee content distribution. Put the refreshed AI company portfolio, Cadavision sales deck/demo video and Agentee use-case presentation into sales follow-up.',focus:true}
-  ];
-  return '<section class="section"><div class="sectionhead"><h3>02 · Key Insights</h3><span class="hint">Manager assessment · W42 vs W41 · directional, not causal</span></div><div class="insights" role="list">'+rows.map(function(r){return '<div class="insight-row'+(r.focus?' focus':'')+'" role="listitem"><div class="insight-label-wrap"><span class="insight-symbol" aria-hidden="true">'+escapeHtml(r.symbol)+'</span><div class="insight-label">'+escapeHtml(r.label)+'</div></div><div class="insight-description">'+escapeHtml(r.description)+'</div></div>'}).join('')+'</div></section>';
- }
-
  var kpis=d.kpis||[], social=d.linkedin||[];
  var lead=kpis.find(function(k){return /marketing leads?/i.test(k.name)});
  var calls=kpis.find(function(k){return /calendly/i.test(k.name)});
@@ -277,11 +250,14 @@ function channels(d){
  var personal=all.filter(function(r){return r.type==='Personal'});
  ['Erik','Cris','Xavier'].forEach(function(name){if(!personal.some(function(r){return r.name===name}))personal.push(placeholderPerson(name))});
  personal=personal.sort(function(a,b){return ['Erik','Cris','Xavier'].indexOf(a.name)-['Erik','Cris','Xavier'].indexOf(b.name)});
- var thought='<section class="section"><div class="sectionhead"><h3>03 · Thought Leadership</h3><span class="hint">Individual LinkedIn performance · Erik, Cris & Xavier</span></div><div class="peoplegrid">'+personal.map(function(r){return '<article class="personcard"><div class="personhead"><div class="avatar">'+escapeHtml((r.name||'?').charAt(0))+'</div><div><div class="personname">'+escapeHtml(r.name)+'</div><div class="personsub">'+escapeHtml(safePostLine(r))+'</div></div></div>'+thoughtMetricRow('Impressions',r.impressions,r.imprChange)+thoughtMetricRow('Engagements',r.engagements,r.engChange)+thoughtMetricRow('Members reached',r.reach,null)+'</article>'}).join('')+'</div>'+(isW42View()?'<p class="info-note" style="margin-top:12px">Possible explanation (not verified): lower content distribution, publishing timing or fewer personal-photo posts may have reduced visibility. Erik generated more interactions per impression despite lower impressions. Review post-level analytics to confirm.</p>':'')+'</section>';
+ var thought='<section class="section"><div class="sectionhead"><h3>03 · Thought Leadership</h3><span class="hint">Individual LinkedIn performance · Erik, Cris & Xavier</span></div><div class="peoplegrid">'+personal.map(function(r){return '<article class="personcard"><div class="personhead"><div class="avatar">'+escapeHtml((r.name||'?').charAt(0))+'</div><div><div class="personname">'+escapeHtml(r.name)+'</div><div class="personsub">'+escapeHtml(safePostLine(r))+'</div></div></div>'+thoughtMetricRow('Impressions',r.impressions,r.imprChange)+thoughtMetricRow('Engagements',r.engagements,r.engChange)+thoughtMetricRow('Members reached',r.reach,null)+'</article>'}).join('')+'</div>'+'</section>';
  var brands=completeBrands(all);
  var pages='<section class="section"><div class="sectionhead"><h3>04 · LinkedIn Page</h3><span class="hint">Brand page performance</span></div><div class="box"><div class="tablewrap"><table><thead><tr><th>Brand</th><th>Posts</th><th>Impressions</th><th>Engagements</th><th>New followers</th></tr></thead><tbody>'+brands.map(function(r){return '<tr><td>'+escapeHtml(r.name)+'</td><td>'+n(r.posts)+'</td><td>'+n(r.impressions)+' '+changeLabel(r.imprChange)+'</td><td>'+n(r.engagements)+' '+changeLabel(r.engChange)+'</td><td>'+n(r.followers)+'</td></tr>'}).join('')+'</tbody></table></div></div>'+(isW42View()?'<p class="info-note" style="margin-top:12px">Possible explanation (not verified): content formats and distribution may explain differences in visibility. Labs generated more engagements despite fewer impressions, while Agentee may need stronger content distribution. Check post timing, creative and audience response.</p>':'')+'</section>';
- var website='<section class="section"><div class="sectionhead"><h3>05 · Website traffic</h3><span class="hint">Website Analytics</span></div><div class="websitegrid'+(isW42View()?' single':'')+'">'+completeWebsites(d.websites).filter(function(x){return !(S.kind==='week'&&currentWeek()?.id==='2026-W42'&&x.name==='Twendee Labs')}).map(function(x){var source=x.source||x.channel||x.trafficSource||'n/a';var topPages=isW42View()&&canonicalAccount(x.name)==='Twendee Soft';return '<article class="box"><div class="webname">'+escapeHtml(x.name)+'</div><div class="three"><div class="figure"><div class="label">Active users</div><strong>'+n(x.active)+'</strong></div><div class="figure"><div class="label">New users</div><strong>'+n(x.newUsers!=null?x.newUsers:x.new)+'</strong></div><div class="figure"><div class="label">'+('Source')+'</div><strong style="font-size:14px;line-height:1.6">'+escapeHtml(topPages?'Top page/screen: 44.1% Homepage, 34.8% Products, 33.3% Portfolio':source)+'</strong></div></div><div class="webnote">'+(topPages?'Organic users: 120 · Singapore 200 · Hanoi 87':'Organic users: '+n(x.organic)+(x.locations?' · '+escapeHtml(x.locations):x.note?' · '+escapeHtml(x.note):''))+'</div></article>'}).join('')+'</div></section>';
- return thought+pages+website;
+ var website='<section class="section"><div class="sectionhead"><h3>05 · Website traffic</h3><span class="hint">Website Analytics · Notion KPI data</span></div><div class="websitegrid">'+completeWebsites(d.websites).map(function(x){
+ var source=x.source||x.channel||x.trafficSource;
+ return '<article class="box"><div class="webname">'+escapeHtml(x.name)+'</div><div class="three"><div class="figure"><div class="label">Active users</div><strong>'+n(x.active)+'</strong></div><div class="figure"><div class="label">New users</div><strong>'+n(x.newUsers!=null?x.newUsers:x.new)+'</strong></div><div class="figure"><div class="label">Event count</div><strong>'+n(x.events)+'</strong></div></div>'+(source?'<div class="webnote">Reported source: '+escapeHtml(source)+'</div>':'')+'</article>';
+}).join('')+'</div></section>';
+return thought+pages+website;
 }
 function content(d){
  var med=completeMedium(d.medium);
@@ -289,10 +265,8 @@ function content(d){
  var groups=completeContent(d.contents);
  var core=groups.core.map(function(r){return '<article class="contentbox"><strong>'+n(r.count)+'</strong><span>'+escapeHtml(r.name)+'</span></article>'}).join('');
  var extras=groups.extras;
- var deliverables=(S.kind==='week'&&S.weekId==='2026-W42')||S.kind==='week'&&S.weekNumber&&S.monthId==='2026-10'&&d.linkedin&&d.linkedin.some(function(x){return x.name==='Cris'&&x.impressions===304;});
- var completed=deliverables?['Company portfolio updated with new AI case studies','Cadavision sales deck and demo video completed','Agentee use-case presentation completed']:[];
- var other='<article class="contentbox other-card"><div class="boxtitle">Other activities</div>'+(completed.length?'<div class="other-grid">'+completed.map(function(name){return '<div class="other-item completed-activity"><span>'+escapeHtml(name)+'</span><strong>Completed</strong></div>'}).join('')+'</div>':extras.length?'<div class="other-grid">'+extras.map(function(r){return '<div class="other-item"><span>'+escapeHtml(r.name)+'</span><strong>'+n(r.count)+'</strong></div>'}).join('')+'</div>':'<div class="info-note">Additional activities were not reported for this period.</div>')+'</article>';
- return mediumHtml+'<section class="section"><div class="sectionhead"><h3>07 · Content & Deliverables</h3><span class="hint">Reported content and other activities</span></div><div class="contentgrid">'+core+other+'</div></section>';
+ var other='<article class="contentbox other-card"><div class="boxtitle">Other activities</div>'+(extras.length?'<div class="other-grid">'+extras.map(function(r){return '<div class="other-item"><span>'+escapeHtml(r.name)+'</span><strong>'+n(r.count)+'</strong></div>'}).join('')+'</div>':'<div class="info-note">Additional completed work is recorded in the Notion weekly report.</div>')+'</article>';
+return mediumHtml+'<section class="section"><div class="sectionhead"><h3>07 · Content & Deliverables</h3><span class="hint">Reported content and other activities</span></div><div class="contentgrid">'+core+other+'</div></section>';
 }
 function details(d){
  var li=(d.linkedin||[]).slice();
@@ -425,6 +399,14 @@ async function refreshFromPublishedNotion(){
   if(!response.ok)throw Error('KPI export HTTP '+response.status);
   const exportData=await response.json();
   const updated=mergeNotionRecords(exportData);
+  // Select the newest confirmed ISO week after loading the Notion export.
+  const latest=exportData.weeks.filter(function(w){return /^\d{4}-W\d{2}$/.test(w['Reporting Period']||'')}).sort(function(a,b){return String(b['Week Start']||'').localeCompare(String(a['Week Start']||''))})[0];
+  if(latest){
+    for(const month of DB.months){
+      const week=(month.weeks||[]).find(function(w){return w.id===latest['Reporting Period']});
+      if(week){S.monthId=month.id;S.yearKey=normalYear(month.year);S.kind='week';S.weekNumber=week.weekNumber;S.unassignedId=null;break}
+    }
+  }
   render();
   const badge=$('dataState');if(badge)badge.title='Synced from Notion through GitHub Pages · '+(exportData.updatedAt||'date unavailable')+' · '+updated+' periods';
  }catch(error){
