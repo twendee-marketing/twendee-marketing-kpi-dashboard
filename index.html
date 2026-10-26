@@ -132,12 +132,12 @@ function renderSelects(){
  $("next").onclick=function(){var row=sorted[idx+1];if(row)chooseMonth(row.id)}
 }
 function renderWeeks(){
- var current=currentMonth(),known=current?.weeks||[],available=known.map(function(x){return x.weekNumber});
- var chips=['<button type="button" class="weekbtn '+(S.kind==="month"?"active":"")+'" data-view="month">Monthly overview</button>'];
- var slots=Math.max(4,...available,0);
- for(var i=1;i<=slots;i++){
- var has=available.indexOf(i)>=0, activeWeek=known.find(function(w){return w.weekNumber===i});
- chips.push('<button type="button" data-week="'+i+'" class="weekbtn '+(S.kind==="week"&&S.weekNumber===i?"active":"")+'" title="'+(has?"Report available":"No weekly data")+'">'+(activeWeek?escapeHtml(activeWeek.id.replace(/^\d{4}-/,'')):'Week '+i)+(has?' <span class="count">●</span>':' <span class="count">—</span>')+'</button>');
+ const known=(currentMonth()?.weeks||[]).slice().sort(function(a,b){return String(b.id).localeCompare(String(a.id))});
+ const chips=['<button type="button" class="weekbtn '+(S.kind==="month"?"active":"")+'" data-view="month">Monthly overview</button>'];
+ for(const w of known){
+   const dateLabel=w.label||w.name||w.id;
+   const label=w.id.replace(/^\d{4}-/,'')+' · '+dateLabel;
+   chips.push('<button type="button" data-week="'+w.weekNumber+'" class="weekbtn '+(S.kind==="week"&&S.weekNumber===w.weekNumber?"active":"")+'" title="'+escapeHtml(w.id)+'">'+escapeHtml(label)+'</button>');
  }
  if(DB.unassignedWeeks.length){chips.push('<span class="sep"></span>');DB.unassignedWeeks.forEach(function(w,j){chips.push('<button type="button" data-unassigned="'+escapeHtml(w.id)+'" class="weekbtn unassigned '+(S.kind==="unassigned"&&S.unassignedId===w.id?"active":"")+'">'+(DB.unassignedWeeks.length===1?"Undated week":"Unassigned week "+(j+1))+'</button>')})}
  $("weeknav").innerHTML=chips.join("");
