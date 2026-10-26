@@ -205,6 +205,53 @@ function scorecard(k){
  return '<article class="kpi"><div class="name">'+escapeHtml(k.name)+'</div><div class="numbers"><strong class="'+(!hasActual?'missing-value':'')+'">'+n(k.actual)+'</strong><span class="goal">/ '+n(k.target)+'</span></div><div class="measure '+(r==null?'pending':cls)+'">'+description+'</div><div class="bar'+(r==null?' missing':'')+'"><div class="'+(r!=null&&r<100?'negative':'')+'" style="width:'+width+'%"></div></div></article>';
 }
 function insights(d){
+ // Executive interpretation is specific to the October Week 4 report.
+ // Keep historical week reports on their existing insight renderer.
+ if(S.kind==="week"&&currentWeek()?.id==="2026-W42"){
+   const k=d.kpis||[], social=d.linkedin||[], medium=d.medium||[], output=d.contents||[];
+   const get=name=>k.find(x=>x.name===name)||{};
+   const leads=get("Marketing Leads"), calls=get("Calendly Calls"), contacts=get("Website Contact"), qualified=get("Warm / Qualified Lead");
+   const actualGoal=x=>n(x.actual)+"/"+n(x.target);
+   const prior=DB.months.find(x=>x.id==="2026-10")?.weeks.find(x=>x.id==="2026-W41")?.report;
+   const oldLeads=prior?.kpis?.find(x=>x.name==="Marketing Leads");
+   const oldCalls=prior?.kpis?.find(x=>x.name==="Calendly Calls");
+   const volumeComparison=(typeof oldLeads?.actual==="number"&&typeof oldCalls?.actual==="number")
+     ? (oldLeads.actual===leads.actual&&oldCalls.actual===calls.actual
+       ? "Lead and call volume is flat versus the prior full W41."
+       : "The prior full W41 recorded "+n(oldLeads.actual)+" leads and "+n(oldCalls.actual)+" calls.")
+     : "The trend in lead-to-opportunity outcomes has not been established.";
+   const postTotal=social.reduce((sum,x)=>sum+(typeof x.posts==="number"?x.posts:0),0);
+   const brands=social.filter(x=>x.type==="Brand");
+   const brandImpressions=brands.reduce((sum,x)=>sum+(typeof x.impressions==="number"?x.impressions:0),0);
+   const brandEngagements=brands.reduce((sum,x)=>sum+(typeof x.engagements==="number"?x.engagements:0),0);
+   const getContent=name=>output.find(x=>x.name===name)?.count;
+   const agencee=brands.find(x=>x.name==="Agentee")||{};
+   const labs=brands.find(x=>x.name==="Twendee Labs")||{};
+   const site=(d.websites||[]).find(x=>canonicalAccount(x.name)==="Twendee Soft")||{};
+   const describedSource=site.source||"traffic attribution not provided";
+   const avgEngagement=site.note||"average engagement time not reported";
+   const rows=[
+     {
+       symbol:"↗", label:"Business outcome",
+       description:"Marketing delivered "+actualGoal(leads)+" leads ("+(rate(leads)==null?"target performance unreported":rate(leads)+"% of target")+") and "+actualGoal(calls)+" Calendly calls, but "+actualGoal(contacts)+" website contacts and "+actualGoal(qualified)+" qualified leads. "+volumeComparison+" Meeting count alone does not establish sales-ready pipeline."
+     },
+     {
+       symbol:"◈", label:"Content effectiveness",
+       description:"The team published "+n(postTotal)+" LinkedIn posts, "+n(getContent("Blog articles"))+" blogs and "+n(getContent("Newsletters"))+" newsletters. Brand pages generated "+n(brandImpressions)+" impressions and "+n(brandEngagements)+" engagements; Agentee reported "+pct(agencee.imprChange)+" impression growth while Labs reported "+pct(labs.imprChange)+". Distribution is producing visibility, but its contribution to qualified demand is unverified."
+     },
+     {
+       symbol:"!", label:"Conversion bottleneck",
+       description:"Twendee Soft recorded "+n(site.active)+" active users and "+n(site.new!=null?site.new:site.newUsers)+" new users ("+describedSource+"), yet "+n(contacts.actual)+" tracked website contacts. "+avgEngagement+". Audit landing-page CTAs, form/GA4 events and channel attribution before deciding whether the constraint is audience quality, website UX or measurement."
+     },
+     {
+       symbol:"→", label:"Management priorities", focus:true,
+       description:"Qualify the "+n(leads.actual)+" recorded leads and link all "+n(calls.actual)+" booked calls to their CRM source, owner and next sales stage; check website contact tracking and use the refreshed AI company portfolio in follow-ups. Next report: qualified opportunities, progression after calls and website-origin inquiries—not only content volume."
+     }
+   ];
+   const context="Comparison note: full W41 covers 05–11 Oct (7 days); Week 4 data covers 12–16 Oct (5 days). Reported LinkedIn growth percentages may use different platform comparison windows; do not treat them as W41-to-W42 changes. Leads and Calendly calls are not linked cohorts.";
+   return '<section class="section"><div class="sectionhead"><h3>02 · Key Insights</h3><span class="hint">Marketing Manager assessment · business impact and decisions</span></div><div class="insights" role="list">'+rows.map(function(r){return '<div class="insight-row'+(r.focus?' focus':'')+'" role="listitem"><div class="insight-label-wrap"><span class="insight-symbol" aria-hidden="true">'+escapeHtml(r.symbol)+'</span><div class="insight-label">'+escapeHtml(r.label)+'</div></div><div class="insight-description">'+escapeHtml(r.description)+'</div></div>'}).join('')+'</div><p class="contextnote">'+escapeHtml(context)+'</p></section>';
+ }
+
  var k=d.kpis||[],social=d.linkedin||[],sites=d.websites||[];
  var kpis=d.kpis||[], social=d.linkedin||[];
  var lead=kpis.find(function(k){return /marketing leads?/i.test(k.name)});
