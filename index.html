@@ -423,7 +423,11 @@ function mergeNotionRecords(payload){
    let k=d.kpis.find(k=>k.name===key);
    if(!k){k={name:key,target:null,actual:null};d.kpis.push(k)}
    k.actual=typeof r.Actual==='number'?r.Actual:null;
-   k.target=typeof r.Target==='number'?r.Target:null;
+   // Keep the user-verified October monthly warm-lead target when a stale
+   // Notion Pages export still carries a null target. All other KPI targets
+   // remain governed by the published source, including legitimate nulls.
+   const trustedOctWarmTarget=period==='2026-10'&&key==='Warm / Qualified Lead'&&k.target===4;
+   k.target=typeof r.Target==='number'?r.Target:(trustedOctWarmTarget?4:null);
   }
   const groupsSocial=new Map();
   for(const r of rows.filter(r=>r.Section==='Personal branding'||r.Section==='LinkedIn brand pages')){
