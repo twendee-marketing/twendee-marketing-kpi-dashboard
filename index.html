@@ -205,6 +205,66 @@ function scorecard(k){
  return '<article class="kpi"><div class="name">'+escapeHtml(k.name)+'</div><div class="numbers"><strong class="'+(!hasActual?'missing-value':'')+'">'+n(k.actual)+'</strong><span class="goal">/ '+n(k.target)+'</span></div><div class="measure '+(r==null?'pending':cls)+'">'+description+'</div><div class="bar'+(r==null?' missing':'')+'"><div class="'+(r!=null&&r<100?'negative':'')+'" style="width:'+width+'%"></div></div></article>';
 }
 function insights(d){
+ // October strategic diagnostic (manager analysis): calculate findings from recorded
+ // monthly totals, never infer lead-to-call cohort conversion or platform engagement rate.
+ if(S.kind==='month'&&currentMonth()?.id==='2026-10'&&(d.kpis||[]).some(x=>x.actual!=null)){
+  const september=DB.months.find(m=>m.id==='2026-09')?.report||{};
+  const findK=(report,name)=>(report.kpis||[]).find(k=>k.name===name)||{};
+  const currentLead=findK(d,'Marketing Leads'), oldLead=findK(september,'Marketing Leads');
+  const currentCall=findK(d,'Calendly Calls'), oldCall=findK(september,'Calendly Calls');
+  const currentContact=findK(d,'Website Contact'), oldContact=findK(september,'Website Contact');
+  const people=(d.linkedin||[]).filter(x=>x.type==='Personal');
+  const brands=(d.linkedin||[]).filter(x=>x.type==='Brand');
+  const person=name=>people.find(x=>x.name===name)||{};
+  const brand=name=>brands.find(x=>canonicalAccount(x.name)===name)||{};
+  const erik=person('Erik'),cris=person('Cris'),xavier=person('Xavier');
+  const soft=brand('Twendee Soft'),labs=brand('Twendee Labs'),agentee=brand('Agentee');
+  const website=(d.websites||[]).find(x=>canonicalAccount(x.name)==='Twendee Soft')||{};
+  const oldBlogs=(september.contents||[]).find(x=>/blog/i.test(x.name))?.count;
+  const oldNews=(september.contents||[]).find(x=>/newsletter/i.test(x.name))?.count;
+  const curBlogs=(d.contents||[]).find(x=>/blog/i.test(x.name))?.count;
+  const curNews=(d.contents||[]).find(x=>/newsletter/i.test(x.name))?.count;
+  const pct1=v=>Math.round(v*10)/10;
+  const delta=(now,prior)=>typeof now==='number'&&typeof prior==='number'&&prior>0?pct1((now/prior-1)*100):null;
+  const fmtDelta=x=>x==null?'unavailable':(x>0?'+':'')+x.toFixed(1)+'%';
+  const density=p=>typeof p.engagements==='number'&&p.impressions>0?pct1(100*p.engagements/p.impressions):null;
+  const intSum=(arr,key)=>arr.reduce((sum,r)=>sum+(typeof r[key]==='number'?r[key]:0),0);
+  const totalImpressions=intSum(people,'impressions'),totalEngagements=intSum(people,'engagements');
+  const impressionShare=x=>x.impressions!=null&&totalImpressions>0?pct1(x.impressions/totalImpressions*100):null;
+  const engagementShare=x=>x.engagements!=null&&totalEngagements>0?pct1(x.engagements/totalEngagements*100):null;
+  const leadDelta=delta(currentLead.actual,oldLead.actual),callDelta=delta(currentCall.actual,oldCall.actual);
+  const blogDelta=delta(curBlogs,oldBlogs),newsDelta=delta(curNews,oldNews);
+  const contactAchievement=rate(currentContact);
+  const rows=[
+   {
+    symbol:'↘',label:'Lead-to-call momentum',
+    description:'October delivered '+n(currentLead.actual)+' leads ('+rate(currentLead)+'% of target) but '+n(currentCall.actual)+' booked calls ('+rate(currentCall)+'% of target). Versus September, leads moved '+n(oldLead.actual)+' → '+n(currentLead.actual)+' ('+fmtDelta(leadDelta)+') while calls moved '+n(oldCall.actual)+' → '+n(currentCall.actual)+' ('+fmtDelta(callDelta)+'). Calls declined much faster than leads: investigate lead mix, Calendly booking friction and follow-up speed; the totals are not linked conversion cohorts.'
+   },
+   {
+    symbol:'◎',label:'Website demand capture',
+    description:'Website contacts rose from '+n(oldContact.actual)+' in September to '+n(currentContact.actual)+' in October, yet finished at only '+(contactAchievement==null?'unreported':contactAchievement+'%')+' of target. Against approximately 1.1K active users, this is a weak inquiry signal, not a verified site conversion rate. Audit form and CTA events and attribute website contacts to Direct (62.9%), Organic Search (23.09%) and other sources.'
+   },
+   {
+    symbol:'◈',label:'Personal brand efficiency',
+    description:'Xavier generated '+n(xavier.impressions)+' impressions ('+impressionShare(xavier)+'% of personal impressions) but only '+engagementShare(xavier)+'% of engagements. His engagements/impressions proxy is '+density(xavier)+'%, versus Erik '+density(erik)+'% and Cris '+density(cris)+'%. With '+n(xavier.posts)+' posts and reported engagement change '+pct(xavier.engChange)+', review topic relevance, hooks and calls to action before increasing output.'
+   },
+   {
+    symbol:'↗',label:'Brand-channel trade-off',
+    description:'Twendee Labs achieved '+density(labs)+' engagements per 100 impressions versus Twendee Soft '+density(soft)+', suggesting stronger interaction density on a smaller audience. However Labs impressions were reported down '+Math.abs(labs.imprChange)+'%, while Soft grew '+pct(soft.imprChange)+' and Agentee fell '+pct(agentee.imprChange)+'. Test distributing the best-performing Labs themes through Soft and review Agentee reach and content mix.'
+   },
+   {
+    symbol:'▤',label:'Content volume vs outcome',
+    description:'Total blogs fell '+n(oldBlogs)+' → '+n(curBlogs)+' ('+fmtDelta(blogDelta)+') and newsletters '+n(oldNews)+' → '+n(curNews)+' ('+fmtDelta(newsDelta)+'), while leads changed only '+fmtDelta(leadDelta)+'. This does not prove higher content ROI: direct and assisted lead attribution is missing. Evaluate articles and newsletters by qualified inquiries and booked meetings, not publication count alone.'
+   },
+   {
+    symbol:'→',label:'November decision plan',focus:true,
+    description:'Prioritize three tests: (1) map each lead source to meeting booking and next sales stage; (2) validate GA4 form submissions, CTA clicks and landing-page inquiry paths; (3) add UTM/source tagging and compare high-interaction personal and brand formats. Start reporting qualified leads so management can assess pipeline quality—not just activity volume.'
+   }
+  ];
+  const note='Analysis uses October counts and directly comparable September totals where available. Engagements divided by impressions is a descriptive proxy, not LinkedIn’s official engagement rate. Some supplied LinkedIn growth percentages do not reconcile with September account totals; verify their comparison windows. Website K figures are approximate, and no lead-to-call attribution or causal conversion claim is established.';
+  return '<section class="section"><div class="sectionhead"><h3>02 · Key Insights & Decisions</h3><span class="hint">Marketing manager analysis · October vs September 2026</span></div><div class="insights" role="list">'+rows.map(r=>'<div class="insight-row'+(r.focus?' focus':'')+'" role="listitem"><div class="insight-label-wrap"><span class="insight-symbol" aria-hidden="true">'+escapeHtml(r.symbol)+'</span><div class="insight-label">'+escapeHtml(r.label)+'</div></div><div class="insight-description">'+escapeHtml(r.description)+'</div></div>').join('')+'</div><p class="contextnote"><strong>Interpretation and data-quality notes:</strong> '+escapeHtml(note)+'</p></section>';
+ }
+
  // Executive interpretation is specific to the October Week 4 report.
  // Keep historical week reports on their existing insight renderer.
  if(S.kind==="week"&&currentWeek()?.id==="2026-W42"){
