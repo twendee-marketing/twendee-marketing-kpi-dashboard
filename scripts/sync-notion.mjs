@@ -38,6 +38,26 @@ const weekFields=['Reporting Period','Week Start','Status'];
 const pick=(props,keys)=>Object.fromEntries(keys.map(k=>[k,props[k]??null]));
 const records=metricPages.map(item=>pick(values(item),metricFields));
 const weeks=weekPages.map(item=>pick(values(item),weekFields));
+// Public, explicitly named website KPIs only. Never export raw Notion Notes.
+const websiteDetails=metricPages.map(values)
+  .filter(r=>r.Section==='Website traffic'&&r.Metric==='Active users'&&typeof r.Notes==='string')
+  .flatMap(r=>{
+    const note=r.Notes;
+    const rate=note.match(/Returning user rate:\s*([0-9]+(?:\.[0-9]+)?)%/i);
+    const sources=['Direct','Organic Search','Referral','Organic Social','AI Assistant']
+      .map(name=>{
+        const found=note.match(new RegExp('\\b'+name+'\\s+([0-9]+(?:\\.[0-9]+)?)%','i'));
+        return found?{name,percent:Number(found[1])}:null;
+      }).filter(Boolean);
+    if(!rate&&!sources.length)return [];
+    const detail={period:r['Reporting Period'],account:r.Account};
+    if(rate)detail.returningUserRate=Number(rate[1]);
+    if(sources.length){
+      detail.sources=sources;
+      detail.sourceTotal=Math.round(sources.reduce((sum,x)=>sum+x.percent,0)*100)/100;
+    }
+    return [detail];
+  });
 if(!records.length||!weeks.length)throw Error('Empty Notion response. Refusing to publish empty dashboard.');
 const periodSet=new Set(weeks.map(x=>x['Reporting Period']));
 const seen=new Set();
@@ -49,5 +69,5 @@ for(const r of records){
   if(!periodSet.has(r['Reporting Period']))throw Error('KPI lacks a matching Weekly Report: '+r['Reporting Period']);
 }
 await mkdir('data',{recursive:true});
-await writeFile('data/kpi.json',JSON.stringify({records,weeks,updatedAt:new Date().toISOString()},null,2)+'\n');
+await writeFile('data/kpi.json',JSON.stringify({records,weeks,websiteDetails,updatedAt:new Date().toISOString()},null,2)+'\n');
 console.log('Validated '+records.length+' KPI records and '+weeks.length+' weekly reports.');
