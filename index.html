@@ -224,7 +224,7 @@ function insights(d){
   const oldNews=(september.contents||[]).find(x=>/newsletter/i.test(x.name))?.count;
   const curBlogs=(d.contents||[]).find(x=>/blog/i.test(x.name))?.count;
   const curNews=(d.contents||[]).find(x=>/newsletter/i.test(x.name))?.count;
-  const pct1=v=>Math.round(v*10)/10;
+  const pct1=v=>Number(v.toFixed(1));
   const delta=(now,prior)=>typeof now==='number'&&typeof prior==='number'&&prior>0?pct1((now/prior-1)*100):null;
   const fmtDelta=x=>x==null?'unavailable':(x>0?'+':'')+x.toFixed(1)+'%';
   const density=p=>typeof p.engagements==='number'&&p.impressions>0?pct1(100*p.engagements/p.impressions):null;
