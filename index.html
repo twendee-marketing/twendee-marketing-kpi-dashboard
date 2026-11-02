@@ -298,7 +298,7 @@ function channels(d){
  var thought='<section class="section"><div class="sectionhead"><h3>03 · Thought Leadership</h3><span class="hint">Individual LinkedIn performance · Erik, Cris & Xavier</span></div><div class="peoplegrid">'+personal.map(function(r){return '<article class="personcard"><div class="personhead"><div class="avatar">'+escapeHtml((r.name||'?').charAt(0))+'</div><div><div class="personname">'+escapeHtml(r.name)+'</div><div class="personsub">'+escapeHtml(safePostLine(r))+'</div></div></div>'+thoughtMetricRow('Impressions',r.impressions,r.imprChange)+thoughtMetricRow('Engagements',r.engagements,r.engChange)+thoughtMetricRow('Members reached',r.reach,null)+'</article>'}).join('')+'</div>'+(isW42View()?'<p class="info-note" style="margin-top:12px">Reported W42 impressions: Erik 844 (+116%), Cris 451 (+75%) and Xavier 102 (+92%).</p>':'')+'</section>';
  var brands=completeBrands(all);
  var pages='<section class="section"><div class="sectionhead"><h3>04 · LinkedIn Page</h3><span class="hint">Brand page performance</span></div><div class="box"><div class="tablewrap"><table><thead><tr><th>Brand</th><th>Posts</th><th>Impressions</th><th>Engagements</th><th>New followers</th></tr></thead><tbody>'+brands.map(function(r){return '<tr><td>'+escapeHtml(r.name)+'</td><td>'+n(r.posts)+'</td><td>'+n(r.impressions)+' '+changeLabel(r.imprChange)+'</td><td>'+n(r.engagements)+' '+changeLabel(r.engChange)+'</td><td>'+n(r.followers)+'</td></tr>'}).join('')+'</tbody></table></div></div>'+(isW42View()?'<p class="info-note" style="margin-top:12px">Reported W42 brand impressions: Soft 807 (+16.8%), Labs 235 (−14.2%) and Agentee 115 (+310.7%).</p>':'')+'</section>';
- var website='<section class="section"><div class="sectionhead"><h3>05 · Website traffic</h3><span class="hint">Website Analytics</span></div><div class="websitegrid'+(isW42View()?' single':'')+'">'+completeWebsites(d.websites).filter(function(x){return !(S.kind==='week'&&currentWeek()?.id==='2026-W42'&&x.name==='Twendee Labs')}).map(function(x){var source=x.source||x.channel||x.trafficSource||'n/a';var topPages=isW42View()&&canonicalAccount(x.name)==='Twendee Soft';return '<article class="box"><div class="webname">'+escapeHtml(x.name)+'</div><div class="three"><div class="figure"><div class="label">Active users</div><strong>'+n(x.active)+'</strong></div><div class="figure"><div class="label">New users</div><strong>'+n(x.newUsers!=null?x.newUsers:x.new)+'</strong></div><div class="figure"><div class="label">'+('Source')+'</div><strong style="font-size:14px;line-height:1.6">'+escapeHtml(topPages?'Direct 64.9% · Organic Search 22% · Referral 6.6%':source)+'</strong></div></div><div class="webnote">'+(topPages?'Event count: ~1.6K · Avg. engagement time: 30s':'Organic users: '+n(x.organic)+(x.locations?' · '+escapeHtml(x.locations):x.note?' · '+escapeHtml(x.note):''))+'</div></article>'}).join('')+'</div></section>';
+ var website='<section class="section"><div class="sectionhead"><h3>05 · Website traffic</h3><span class="hint">Website Analytics</span></div><div class="websitegrid'+(isW42View()?' single':'')+'">'+completeWebsites(d.websites).filter(function(x){return !(S.kind==='week'&&currentWeek()?.id==='2026-W42'&&x.name==='Twendee Labs')}).map(function(x){var source=x.source||x.channel||x.trafficSource||'n/a';var topPages=isW42View()&&canonicalAccount(x.name)==='Twendee Soft';return '<article class="box"><div class="webname">'+escapeHtml(x.name)+'</div><div class="three"><div class="figure"><div class="label">Active users</div><strong>'+n(x.active)+'</strong></div><div class="figure"><div class="label">New users</div><strong>'+n(x.newUsers!=null?x.newUsers:x.new)+'</strong></div><div class="figure"><div class="label">'+(!topPages&&x.events!=null?'Event count':'Source')+'</div><strong style="font-size:14px;line-height:1.6">'+escapeHtml(topPages?'Direct 64.9% · Organic Search 22% · Referral 6.6%':x.events!=null?n(x.events):source)+'</strong></div></div><div class="webnote">'+(topPages?'Event count: ~1.6K · Avg. engagement time: 30s':escapeHtml([x.returningUserRate!=null?'Returning user rate: '+x.returningUserRate+'%':null,source!=='n/a'?'Sources: '+source:null,x.sourceTotal>100?'Source percentages total '+x.sourceTotal+'%; verify attribution':null,x.organic!=null?'Organic users: '+n(x.organic):null,x.locations||null,x.note||null].filter(Boolean).join(' · ')||'Other traffic breakdown not reported'))+'</div></article>'}).join('')+'</div></section>';
  return thought+pages+website;
 }
 function content(d){
@@ -435,6 +435,28 @@ function mergeNotionRecords(payload){
   ref.report=d;
  }
  for(const [period,rows] of groups)mergeOne(period,rows);
+ // Export only allowlisted, numeric website details; raw Notion Notes never reach the browser.
+ for(const detail of payload.websiteDetails||[]){
+  if(!allowedPeriods.has(detail.period))continue;
+  const ref=locateReport(detail.period,[]);
+  const site=(ref?.report?.websites||[]).find(x=>aName(x.name)===aName(detail.account));
+  if(!site)continue;
+  if(typeof detail.returningUserRate==='number')site.returningUserRate=detail.returningUserRate;
+  if(Array.isArray(detail.sources)){
+   site.source=detail.sources
+     .filter(x=>typeof x.name==='string'&&typeof x.percent==='number')
+     .map(x=>x.name+' '+x.percent+'%').join(' · ');
+   if(typeof detail.sourceTotal==='number')site.sourceTotal=detail.sourceTotal;
+  }
+ }
+ // Open the latest actual reporting week after the live Notion export has loaded.
+ const candidates=payload.weeks.filter(w=>/^\d{4}-W\d{2}$/.test(w['Reporting Period']||'')&&w['Week Start'])
+   .sort((a,b)=>String(b['Week Start']).localeCompare(String(a['Week Start'])));
+ const latest=candidates.find(w=>w.Status==='Ready')||candidates[0];
+ if(latest)for(const month of DB.months){
+  const match=(month.weeks||[]).find(w=>w.id===latest['Reporting Period']);
+  if(match){S.monthId=month.id;S.yearKey=normalYear(month.year);S.kind='week';S.weekNumber=match.weekNumber;S.unassignedId=null;break}
+ }
  return groups.size;
 }
 async function refreshFromPublishedNotion(){
@@ -453,7 +475,7 @@ async function refreshFromPublishedNotion(){
 
 function render(){renderSelects();renderWeeks();titleHeader();renderReport()}
 if(!DB.months.length){$("report").innerHTML=emptyState();return}
-S.monthId=DB.months[0].id;S.yearKey=normalYear(DB.months[0].year);if(!DB.months[0].report&&DB.months[0].weeks?.length){S.kind="week";S.weekNumber=DB.months[0].weeks[0].weekNumber}render();refreshFromPublishedNotion()
+S.monthId=DB.months[0].id;S.yearKey=normalYear(DB.months[0].year);if(!DB.months[0].report&&DB.months[0].weeks?.length){S.kind="week";S.weekNumber=Math.max(...DB.months[0].weeks.map(w=>w.weekNumber||0))}render();refreshFromPublishedNotion()
 })();
 </script>
 </body>
