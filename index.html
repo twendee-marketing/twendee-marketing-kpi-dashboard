@@ -79,6 +79,9 @@ h1,h2,h3,p{margin-top:0}.wrap{max-width:1200px;padding:24px 24px 44px;margin:0 a
 .monthly-activity-body h4{margin:0 0 4px;font-size:13px;line-height:1.45;font-weight:750;color:var(--ink)}
 .monthly-activity-body p{margin:0;font-size:12px;line-height:1.55;color:var(--sub);overflow-wrap:anywhere}
 @media(max-width:700px){.monthly-activity-grid{grid-template-columns:1fr;gap:8px}.monthly-activity-card{min-height:0;padding:12px 13px}}
+.reported-kpis{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+@media(max-width:780px){.reported-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:510px){.reported-kpis{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -387,28 +390,33 @@ function cleanNovemberReport(d){
  const val=(x,approx)=>x==null?'—':(approx?'≈':'')+n(x);
  const cell=(x,change)=>val(x)+(change!=null?' '+changeLabel(change):'');
  const sections=[];
+ const orderKpi=['Marketing Leads','Calendly Calls','Website Contact','Event Contact','Warm / Qualified Lead'];
+ const leadKpis=(d.kpis||[]).filter(k=>typeof k.actual==='number').sort((a,b)=>orderKpi.indexOf(a.name)-orderKpi.indexOf(b.name));
  const twoweeks=currentWeek()?.id==='2026-W45-W46';
  sections.push('<div class="explain">Only reported KPI metrics are shown. K values are rounded estimates; platform growth percentages are preserved as supplied.'+(twoweeks?' This is a 14-day W45–W46 aggregate and must not be compared directly with seven-day W47 totals.':'')+'</div>');
+ if(leadKpis.length){
+  sections.push('<section class="section"><div class="sectionhead"><h3>01 · Marketing Results</h3><span class="hint">Actual / Target</span></div><div class="kpis reported-kpis">'+leadKpis.map(k=>k.target!=null?scorecard(k):'<article class="kpi"><div class="name">'+escapeHtml(k.name)+'</div><div class="numbers"><strong>'+n(k.actual)+'</strong></div></article>').join('')+'</div></section>');
+ }
  if(fb.length){
   const order=['Views','Viewers','Engagements','Link clicks','New followers'];
   fb.sort((a,b)=>order.indexOf(a.name)-order.indexOf(b.name));
-  sections.push('<section class="section"><div class="sectionhead"><h3>01 · Facebook</h3><span class="hint">Page performance</span></div><div class="box"><div class="tablewrap"><table><thead><tr><th>Metric</th><th>Actual</th><th>Reported growth</th></tr></thead><tbody>'+
+  sections.push('<section class="section"><div class="sectionhead"><h3>02 · Facebook</h3><span class="hint">Page performance</span></div><div class="box"><div class="tablewrap"><table><thead><tr><th>Metric</th><th>Actual</th><th>Reported growth</th></tr></thead><tbody>'+
    fb.map(x=>'<tr><td>'+escapeHtml(x.name)+'</td><td>'+val(x.value,['Views','Viewers'].includes(x.name))+'</td><td>'+changeLabel(x.change)+'</td></tr>').join('')+'</tbody></table></div></div></section>');
  }
  if(personal.length){
   const order=['Erik','Cris','Xavier'];personal.sort((a,b)=>order.indexOf(a.name)-order.indexOf(b.name));
-  sections.push('<section class="section"><div class="sectionhead"><h3>02 · Personal LinkedIn</h3><span class="hint">Reported profile metrics</span></div><div class="peoplegrid">'+
+  sections.push('<section class="section"><div class="sectionhead"><h3>03 · Personal LinkedIn</h3><span class="hint">Reported profile metrics</span></div><div class="peoplegrid">'+
    personal.map(x=>'<article class="personcard"><div class="personhead"><div class="avatar">'+escapeHtml(x.name.charAt(0))+'</div><div><div class="personname">'+escapeHtml(x.name)+'</div><div class="personsub">LinkedIn profile</div></div></div>'+
    (x.impressions!=null?thoughtMetricRow('Impressions',x.impressions,x.imprChange):'')+
    (x.engagements!=null?thoughtMetricRow('Engagements',x.engagements,x.engChange):'')+
    (x.reach!=null?thoughtMetricRow('Members reached',x.reach,x.reachChange):'')+'</article>').join('')+'</div></section>');
  }
  if(brands.length){
-  sections.push('<section class="section"><div class="sectionhead"><h3>03 · LinkedIn Brand Pages</h3><span class="hint">Reported brand metrics</span></div><div class="box"><div class="tablewrap"><table><thead><tr><th>Account</th><th>Impressions</th><th>Engagements</th><th>New followers</th></tr></thead><tbody>'+
+  sections.push('<section class="section"><div class="sectionhead"><h3>04 · LinkedIn Brand Pages</h3><span class="hint">Reported brand metrics</span></div><div class="box"><div class="tablewrap"><table><thead><tr><th>Account</th><th>Impressions</th><th>Engagements</th><th>New followers</th></tr></thead><tbody>'+
    brands.map(x=>'<tr><td>'+escapeHtml(x.name)+'</td><td>'+cell(x.impressions,x.imprChange)+'</td><td>'+cell(x.engagements,x.engChange)+'</td><td>'+val(x.followers)+'</td></tr>').join('')+'</tbody></table></div></div></section>');
  }
  if(sites.length){
-  sections.push('<section class="section"><div class="sectionhead"><h3>04 · Website Traffic</h3><span class="hint">Reported GA4 metrics</span></div><div class="websitegrid'+(sites.length===1?' single':'')+'">'+
+  sections.push('<section class="section"><div class="sectionhead"><h3>05 · Website Traffic</h3><span class="hint">Reported GA4 metrics</span></div><div class="websitegrid'+(sites.length===1?' single':'')+'">'+
    sites.map(x=>'<article class="box"><div class="webname">'+escapeHtml(x.name)+'</div><div class="three">'+
     [['Active users',x.active],['New users',x.newUsers],['Event count',x.events],['Returning user rate',x.returningUserRate]].filter(y=>y[1]!=null)
       .map(y=>'<div class="figure"><div class="label">'+escapeHtml(y[0])+'</div><strong>'+(y[0]==='Returning user rate'?y[1]+'%':val(y[1],y[0]==='Event count'))+'</strong></div>').join('')+
@@ -420,7 +428,7 @@ function cleanNovemberReport(d){
  if(view&&eng)insights.push('Facebook: '+val(view.value,true)+' views, '+n(eng.value)+' engagements ('+pct(eng.change)+' growth, as reported).');
  if(twd)insights.push('Twendee LinkedIn: '+n(twd.impressions)+' impressions ('+pct(twd.imprChange)+'), '+n(twd.engagements)+' engagements.');
  if(site)insights.push('Website: '+n(site.active)+' active users, '+n(site.newUsers)+' new users and '+site.returningUserRate+'% returning-user rate.');
- if(insights.length)sections.push('<section class="section"><div class="sectionhead"><h3>05 · Key Insights</h3><span class="hint">From submitted data</span></div><div class="box">'+insights.map(i=>'<p class="info-note">'+escapeHtml(i)+'</p>').join('')+'</div></section>');
+ if(insights.length)sections.push('<section class="section"><div class="sectionhead"><h3>06 · Key Insights</h3><span class="hint">From submitted data</span></div><div class="box">'+insights.map(i=>'<p class="info-note">'+escapeHtml(i)+'</p>').join('')+'</div></section>');
  return sections.join('');
 }
 function renderReport(){
@@ -470,7 +478,7 @@ function mergeNotionRecords(payload){
   d.kpis=d.kpis||[];d.linkedin=d.linkedin||[];d.websites=d.websites||[];d.medium=d.medium||[];d.contents=d.contents||[];
   // Only update metrics actually present in Notion; a reported zero is not missing.
   for(const r of rows.filter(r=>r.Section==='Lead funnel'&&r.Account==='Marketing')){
-   const key={'Marketing leads':'Marketing Leads','Calendly calls':'Calendly Calls','Website contact':'Website Contact','Warm / qualified lead':'Warm / Qualified Lead'}[r.Metric];
+   const key={'Marketing leads':'Marketing Leads','Calendly calls':'Calendly Calls','Website contact':'Website Contact','Warm / qualified lead':'Warm / Qualified Lead','Event contact':'Event Contact'}[r.Metric];
    if(!key)continue;
    let k=d.kpis.find(k=>k.name===key);
    if(!k){k={name:key,target:null,actual:null};d.kpis.push(k)}
