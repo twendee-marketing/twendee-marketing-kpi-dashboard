@@ -148,6 +148,13 @@ function renderWeeks(){
  var has=available.indexOf(i)>=0;
  chips.push('<button type="button" data-week="'+i+'" class="weekbtn '+(S.kind==="week"&&S.weekNumber===i?"active":"")+'" title="'+(has?"Report available":"No weekly data")+'">Week '+i+(has?' <span class="count">●</span>':' <span class="count">—</span>')+'</button>');
  }
+
+ if(known.some(function(w){return w.report&&w.report.reportedOnly})){
+  chips=known.slice().sort(function(a,b){return a.id.localeCompare(b.id)}).map(function(w){
+   var label=w.id==='2026-W45-W46'?'02–15 Nov · W45–W46':w.id==='2026-W47'?'16–22 Nov · W47':w.name;
+   return '<button type="button" class="weekbtn '+(S.kind==="week"&&S.weekNumber===w.weekNumber?"active":"")+'" data-week="'+w.weekNumber+'">'+escapeHtml(label)+'</button>';
+  });
+ }
  $("weeknav").innerHTML=chips.join("");
  $("weeknav").querySelectorAll("[data-view]").forEach(function(x){x.onclick=function(){S.kind="month";S.weekNumber=null;S.unassignedId=null;render()}});
  $("weeknav").querySelectorAll("[data-week]").forEach(function(x){x.onclick=function(){chooseWeek(Number(x.dataset.week))}});
@@ -155,7 +162,7 @@ function renderWeeks(){
 function titleHeader(){
  var m=currentMonth(),span=(m?MONTH_NAMES[m.month-1]:"Unknown month"),y=m?.year||"unconfirmed year";
  if(S.kind==="month"){$("heading").textContent=span+" · Monthly overview";$("description").textContent="Marketing KPIs, key takeaways, and channel performance for the selected month."; $("dataState").textContent=m?.year?"Report · "+y:"Year not confirmed"}
- if(S.kind==="week"){$("heading").textContent=span+" · Week "+S.weekNumber;$("description").textContent="Weekly results linked to the selected reporting month.";$("dataState").textContent=currentWeek()?"Report available":"No data available"}
+ if(S.kind==="week"){var cw=currentWeek();var special=cw?.report?.reportedOnly;$("heading").textContent=special?(cw.id==="2026-W45-W46"?"02–15 November 2026 · W45–W46":"16–22 November 2026 · W47"):span+" · Week "+S.weekNumber;$("description").textContent=special?(cw.id==="2026-W45-W46"?"14-day reporting aggregate · 2 ISO weeks":"Weekly marketing performance · ISO week 47"):"Weekly results linked to the selected reporting month.";$("dataState").textContent=cw?"Report available":"No data available"}
  if(S.kind==="unassigned"){$("heading").textContent="Sample weekly report";$("description").textContent="This sample has no confirmed dates and is not assigned to a specific month.";$("dataState").textContent="Period not verified"}
 }
 function changeBadge(x){if(x==null)return '<span class="trend-unknown" title="No comparison data reported">—</span>';return '<span class="delta '+(x>=0?'up':'down')+'">'+pct(x)+'</span>'}
@@ -372,8 +379,53 @@ function emptyState(){
  var p=S.kind==="week",m=currentMonth(),label=p?"Week "+S.weekNumber:"Month "+(m?.name||"unknown");
  return '<div class="blank"><strong>'+escapeHtml(label)+' has no report yet</strong><p>'+(p?"No weekly report is linked to this month. Create a record in Weekly Reports and link it to the reporting month.":"There is no monthly report for the selected period.")+'</p><a class="link" target="_blank" rel="noopener noreferrer" href="'+(p?WEB.weekly:WEB.monthly)+'">Open database to add data ↗</a></div>'
 }
+
+function cleanNovemberReport(d){
+ const fb=d.facebook||[], social=d.linkedin||[];
+ const personal=social.filter(x=>x.type==='Personal'),brands=social.filter(x=>x.type==='Brand');
+ const sites=(d.websites||[]).filter(x=>[x.active,x.newUsers,x.events,x.returningUserRate].some(v=>v!=null));
+ const val=(x,approx)=>x==null?'—':(approx?'≈':'')+n(x);
+ const cell=(x,change)=>val(x)+(change!=null?' '+changeLabel(change):'');
+ const sections=[];
+ const twoweeks=currentWeek()?.id==='2026-W45-W46';
+ sections.push('<div class="explain">Only reported KPI metrics are shown. K values are rounded estimates; platform growth percentages are preserved as supplied.'+(twoweeks?' This is a 14-day W45–W46 aggregate and must not be compared directly with seven-day W47 totals.':'')+'</div>');
+ if(fb.length){
+  const order=['Views','Viewers','Engagements','Link clicks','New followers'];
+  fb.sort((a,b)=>order.indexOf(a.name)-order.indexOf(b.name));
+  sections.push('<section class="section"><div class="sectionhead"><h3>01 · Facebook</h3><span class="hint">Page performance</span></div><div class="box"><div class="tablewrap"><table><thead><tr><th>Metric</th><th>Actual</th><th>Reported growth</th></tr></thead><tbody>'+
+   fb.map(x=>'<tr><td>'+escapeHtml(x.name)+'</td><td>'+val(x.value,['Views','Viewers'].includes(x.name))+'</td><td>'+changeLabel(x.change)+'</td></tr>').join('')+'</tbody></table></div></div></section>');
+ }
+ if(personal.length){
+  const order=['Erik','Cris','Xavier'];personal.sort((a,b)=>order.indexOf(a.name)-order.indexOf(b.name));
+  sections.push('<section class="section"><div class="sectionhead"><h3>02 · Personal LinkedIn</h3><span class="hint">Reported profile metrics</span></div><div class="peoplegrid">'+
+   personal.map(x=>'<article class="personcard"><div class="personhead"><div class="avatar">'+escapeHtml(x.name.charAt(0))+'</div><div><div class="personname">'+escapeHtml(x.name)+'</div><div class="personsub">LinkedIn profile</div></div></div>'+
+   (x.impressions!=null?thoughtMetricRow('Impressions',x.impressions,x.imprChange):'')+
+   (x.engagements!=null?thoughtMetricRow('Engagements',x.engagements,x.engChange):'')+
+   (x.reach!=null?thoughtMetricRow('Members reached',x.reach,x.reachChange):'')+'</article>').join('')+'</div></section>');
+ }
+ if(brands.length){
+  sections.push('<section class="section"><div class="sectionhead"><h3>03 · LinkedIn Brand Pages</h3><span class="hint">Reported brand metrics</span></div><div class="box"><div class="tablewrap"><table><thead><tr><th>Account</th><th>Impressions</th><th>Engagements</th><th>New followers</th></tr></thead><tbody>'+
+   brands.map(x=>'<tr><td>'+escapeHtml(x.name)+'</td><td>'+cell(x.impressions,x.imprChange)+'</td><td>'+cell(x.engagements,x.engChange)+'</td><td>'+val(x.followers)+'</td></tr>').join('')+'</tbody></table></div></div></section>');
+ }
+ if(sites.length){
+  sections.push('<section class="section"><div class="sectionhead"><h3>04 · Website Traffic</h3><span class="hint">Reported GA4 metrics</span></div><div class="websitegrid'+(sites.length===1?' single':'')+'">'+
+   sites.map(x=>'<article class="box"><div class="webname">'+escapeHtml(x.name)+'</div><div class="three">'+
+    [['Active users',x.active],['New users',x.newUsers],['Event count',x.events],['Returning user rate',x.returningUserRate]].filter(y=>y[1]!=null)
+      .map(y=>'<div class="figure"><div class="label">'+escapeHtml(y[0])+'</div><strong>'+(y[0]==='Returning user rate'?y[1]+'%':val(y[1],y[0]==='Event count'))+'</strong></div>').join('')+
+    '</div></article>').join('')+'</div></section>');
+ }
+ const view=fb.find(x=>x.name==='Views'),eng=fb.find(x=>x.name==='Engagements');
+ const twd=brands.find(x=>canonicalAccount(x.name)==='Twendee Soft'),site=sites[0];
+ const insights=[];
+ if(view&&eng)insights.push('Facebook: '+val(view.value,true)+' views, '+n(eng.value)+' engagements ('+pct(eng.change)+' growth, as reported).');
+ if(twd)insights.push('Twendee LinkedIn: '+n(twd.impressions)+' impressions ('+pct(twd.imprChange)+'), '+n(twd.engagements)+' engagements.');
+ if(site)insights.push('Website: '+n(site.active)+' active users, '+n(site.newUsers)+' new users and '+site.returningUserRate+'% returning-user rate.');
+ if(insights.length)sections.push('<section class="section"><div class="sectionhead"><h3>05 · Key Insights</h3><span class="hint">From submitted data</span></div><div class="box">'+insights.map(i=>'<p class="info-note">'+escapeHtml(i)+'</p>').join('')+'</div></section>');
+ return sections.join('');
+}
 function renderReport(){
  var source=reportData(),d=source||reportShell();
+ if(d.reportedOnly){$("report").innerHTML=cleanNovemberReport(d);return;}
  var preface=!source?'No official figures have been reported for this period. The dashboard shows unfilled KPI slots rather than deriving monthly totals from overlapping weeks.':S.kind==='month'?'These are the reported monthly totals. Undated sample reports are excluded from aggregation.':S.kind==='unassigned'?'This is an undated weekly sample. Its reporting month is unverified.':'Reported weekly KPI values are shown below. Overlapping reporting periods must not be summed.';
  $('report').innerHTML='<div class="explain">'+escapeHtml(preface)+'</div><section class="section"><div class="sectionhead"><h3>01 · Marketing Results</h3><span class="hint">Actual / Target</span></div><div class="kpis">'+completeKPIs(d.kpis).map(scorecard).join('')+'</div></section>'+insights(d)+channels(d)+content(d)+details(d);
 }
@@ -487,7 +539,15 @@ function mergeNotionRecords(payload){
   }
   ref.report=d;
  }
- for(const [period,rows] of groups)mergeOne(period,rows);
+ for(const [period,rows] of groups){
+  mergeOne(period,rows);
+  const ref=locateReport(period,rows);
+  if(ref?.report&&rows.some(r=>r.Section==='Facebook')){
+   ref.report.reportedOnly=true;
+   ref.report.facebook=rows.filter(r=>r.Section==='Facebook'&&typeof r.Actual==='number')
+    .map(r=>({name:r.Metric,value:r.Actual,change:typeof r['Change %']==='number'?r['Change %']:null}));
+  }
+ }
  // Export only allowlisted, numeric website details; raw Notion Notes never reach the browser.
  for(const detail of payload.websiteDetails||[]){
   if(!allowedPeriods.has(detail.period))continue;
