@@ -566,7 +566,7 @@ function mergeNotionRecords(payload){
  const candidates=payload.weeks.filter(w=>/^\d{4}-W\d{2}$/.test(w['Reporting Period']||'')&&w['Week Start'])
    .sort((a,b)=>String(b['Week Start']).localeCompare(String(a['Week Start'])));
  const latest=candidates.find(w=>w.Status==='Ready')||candidates[0];
- if(latest&&!currentMonth()?.report)for(const month of DB.months){
+ if(latest)for(const month of DB.months){
   const match=(month.weeks||[]).find(w=>w.id===latest['Reporting Period']);
   if(match){S.monthId=month.id;S.yearKey=normalYear(month.year);S.kind='week';S.weekNumber=match.weekNumber;S.unassignedId=null;break}
  }
